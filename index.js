@@ -98,9 +98,6 @@ var Baseview = function(config) {
 							this.$set(this[k], k, _viewDatas[_this.name][k])
 						}
 					}
-					for(var commonk in _viewDatas.common_data) {
-						updateCommonDataHelper(this, commonk, _viewDatas.common_data[commonk])
-					}
 				}
 				_this[callbacks[i] + '_'] && _this[callbacks[i] + '_']()
 			})
@@ -119,6 +116,13 @@ var Baseview = function(config) {
 	}
 }
 function install(Vue, options) {
+	Vue.mixin({
+		mounted: function () {
+			for(var commonk in _viewDatas.common_data) {
+				updateCommonDataHelper(this, commonk, _viewDatas.common_data[commonk])
+			}
+		}
+	})
 	window.Baseview = Baseview
 	Vue.prototype.$updateView = updateViewData
 	Vue.prototype.$updateCommon = updateCommonData
