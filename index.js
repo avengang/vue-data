@@ -120,7 +120,7 @@ var Baseview = function(config) {
 }
 function install(Vue, options) {
 	window.Baseview = Baseview
-	Vue.prototype.updateViewData = updateViewData
-	Vue.prototype.updateCommonData = updateCommonData
+	Vue.prototype.$updateView = updateViewData
+	Vue.prototype.$updateCommon = updateCommonData
 }
 export default install
