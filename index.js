@@ -4,7 +4,6 @@ require('./util.js')
 var _name_uuid_Map = {}
 var _viewDatas = {}
 var _vms = []
-// 动态加载页面文件的时候，页面文件还没加载等待，对应的baseview实例还没存在，此时要修改对象的值就先放到临时对象里面
 var wait2Update = {}
 function hash2name(hash) {
 	return encodeURIComponent(hash).replace(/%/g, '_')
@@ -13,14 +12,27 @@ function isUndefinedOrNull(arg) {
 	if(arg === undefined || arg === null) return true
 	return false
 }
-function updateViewData(name, key, value) {
-	var uuid = _name_uuid_Map[name]
-	if(!uuid) {
-		wait2Update[name] = {}
-		wait2Update[name][key] = value
+function updateViewData() {
+	var viewname, viewtag, key, value
+	if(arguments.length === 4) {
+		viewname = arguments[0]
+		viewtag = arguments[1]
+		key = arguments[2]
+		value = arguments[3]
+	} else if(arguments.length === 3) {
+		viewname = arguments[0]
+		viewtag = 'default'
+		key = arguments[1]
+		value = arguments[2]
 	} else {
-		_viewDatas[uuid][key] = value
+		console.log('传入参数：', arguments)
+		throw new Error('$updateView参数不匹配，参数必须为3（viewname, key, value。其中viewtag为默认值：\'default\'）或者4个(viewname, viewtag, key, value)，传入的参数为：')
 	}
+	if(!wait2Update[viewname])
+		wait2Update[viewname] = {}
+	if(!wait2Update[viewname][viewtag])
+		wait2Update[viewname][viewtag] = {}
+	wait2Update[viewname][viewtag][key] = window.$deepCopy(value)
 }
 function updateCommonDataHelper(vm, key, value) {
 	if(!vm.common_data) {
@@ -51,6 +63,7 @@ function updateCommonData(key, value) {
 	}
 }
 var Baseview = function(config) {
+	var cache = !!config.cache
 	var uuid = $getUuid()
 	var viewname = config.viewname || uuid
 	if(_name_uuid_Map[config.viewname]) throw new Error('viewname不能重复, 已经存在viewname = ' + config.viewname + ' 的对象')
@@ -72,7 +85,17 @@ var Baseview = function(config) {
 			return d
 		}
 	}
-	_viewDatas[uuid] = config.data()
+	if(!config.props) {
+		config.props = []
+		config.props.push('viewtag')
+	} else {
+		if(Object.prototype.toString.call(config.props) === '[object Array]') { // 数组
+			config.props.push('viewtag')
+		} else { // 对象
+			config.props.viewtag = String
+		}
+	}
+	_viewDatas[uuid] = {}
 	var callbacks = ['beforeCreate', 'created', 'beforeMount', 'mounted', 'beforeUpdate', 'updated', 'beforeDestroy', 'destroyed']
 	for(var k in config) {
 		if(config.hasOwnProperty(k) && !isUndefinedOrNull(config[k])) {
@@ -91,8 +114,11 @@ var Baseview = function(config) {
 				}
 				if(i === 2) { // beforeMount
 					this._viewname = _this.name = uuid
-					for(var k in _viewDatas[_this.name]) {
-						if(this[k] === undefined) this.$set(this.$data, k, null)
+					var viewtag = this.viewtag || 'default'
+					if(cache) { // 如果需要缓存的话就要把该baseview的对象data加入字段
+						for(var k in _viewDatas[_this.name][viewtag]) {
+							if(this[k] === undefined) this.$set(this.$data, k, null)
+						}
 					}
 				}
 				if(i === 3) { // mounted
@@ -101,55 +127,78 @@ var Baseview = function(config) {
 				_this['_' + callbacks[i]] && _this['_' + callbacks[i]]()
 			})._after_(function() {
 				if(i === 3) { // mounted
-					var els = document.getElementsByClassName('_js_isbaseview' + uuid)
-					if(!els) return //没显示就不用浪费性能去更新data
-					for(var k in _viewDatas[_this.name]) {
-						if(this[k] === _viewDatas[_this.name][k]) continue // 没变化，不更新
-						if(Object.prototype.toString.call(_viewDatas[_this.name][k]) === '[object Array]') {
-							for(var j=0;j<_viewDatas[_this.name][k].length;j++) {
-								this.$set(this[k], j, window.$deepCopy(_viewDatas[_this.name][k][j]))
+					var viewtag = this.viewtag || 'default'
+					if(cache) { // 有指定该baseview是缓存的话就要在渲染完之后加入缓存内容
+						var els = document.getElementsByClassName('_js_isbaseview' + uuid)
+						if(!els) return //没显示就不用浪费性能去更新data
+						var viewDatas = _viewDatas[this._viewname][viewtag]
+						for(var k in viewDatas) {
+							if(this[k] === viewDatas[k]) continue // 没变化，不更新
+							if(Object.prototype.toString.call(viewDatas[k]) === '[object Array]') {
+								for(var j=0;j<viewDatas[k].length;j++) {
+									this.$set(this[k], j, window.$deepCopy(viewDatas[k][j]))
+								}
+							} else if(Object.prototype.toString.call(viewDatas[k]) === '[object object]') {
+								for(var _key in viewDatas[k]) {
+									this.$set(this[k], _key, viewDatas[k][_key])
+								}
+							} else {
+								this[k] = viewDatas[k]
 							}
-						} else if(Object.prototype.toString.call(_viewDatas[_this.name][k]) === '[object object]') {
-							for(var _key in _viewDatas[_this.name][k]) {
-								this.$set(this[k], _key, _viewDatas[_this.name][k][_key])
-							}
-						} else {
-							this[k] = _viewDatas[_this.name][k]
 						}
+						_viewDatas[this._viewname][viewtag] = null
+					}
+					if(wait2Update[viewname] && wait2Update[viewname][viewtag]) {
+						var waitData = wait2Update[viewname][viewtag]
+						for(var k in waitData) {
+							if(this[k] === waitData[k]) continue // 没变化，不更新
+							if(Object.prototype.toString.call(waitData[k]) === '[object Array]') {
+								for(var j=0;j<waitData[k].length;j++) {
+									this.$set(this[k], j, window.$deepCopy(waitData[k][j]))
+								}
+							} else if(Object.prototype.toString.call(waitData[k]) === '[object object]') {
+								for(var _key in waitData[k]) {
+									this.$set(this[k], _key, waitData[k][_key])
+								}
+							} else {
+								this[k] = waitData[k]
+							}
+						}
+						wait2Update[viewname][viewtag] = null
 					}
 					for(var commonk in _viewDatas.common_data) {
 						updateCommonData(this, commonk, _viewDatas.common_data[commonk])
 					}
 				}
 				if(i === 6) { // beforeDestroy
-					for(var i=0,ii=_vms.length;i<ii;i++) {
-						if(_vms[i] === this) {
-							_vms.splice(i, 1)
+					for(var n=0,nn=_vms.length;n<nn;n++) {
+						if(_vms[n] === this) {
+							_vms.splice(n, 1)
 							return
 						}
 					}
-					for(var i=0,ii=_viewDatas.length;i<ii;i++) {
-						if(_viewDatas[i] === this) {
-							_viewDatas.splice(i, 1)
-							return;
-						}
+					if(cache) {
+						var viewtag = this.viewtag || 'default'
+						_viewDatas[this._viewname][viewtag] = window.$deepCopy(this._data)
+					} else {
+						_viewDatas[this._viewname][viewtag] = {}
 					}
 				}
 				_this[callbacks[i] + '_'] && _this[callbacks[i] + '_']()
 			})
 		})(i)
 	}
-	var _this = this;
-	if(this.beforeRouteLeave) {
-		this.beforeRouteLeave = this.beforeRouteLeave._before_(function() {
-			_viewDatas[_this.name] = window.$deepCopy(this._data)
-		})
-	} else {
-		this.beforeRouteLeave = function(to, from, next) {
-			_viewDatas[_this.name] = window.$deepCopy(this._data)
-			next();
-		}
-	}
+// 	var _this = this;
+// 	if(this.beforeRouteLeave) {
+// 		this.beforeRouteLeave = this.beforeRouteLeave._before_(function() {
+// 			_viewDatas[_this.name] = window.$deepCopy(this._data)
+// 		})
+// 	} else {
+// 		this.beforeRouteLeave = function(to, from, next) {
+// 			_viewDatas[_this.name] = window.$deepCopy(this._data)
+// 			next();
+// 		}
+// 	}
 }
 window.Baseview = Baseview
 function install(Vue, options) {
