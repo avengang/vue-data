@@ -108,7 +108,7 @@ common对象会默认存在每个vue实例的data属性中，并且和其他在d
 ```
 
 ### 指定修改
-在vue实例中可以只用方法：**$updateView**修改指定另一个vue实例的data属性值，具体做法是：
+在vue实例中可使用方法：**$updateView**来修改指定的另一个vue实例的data属性值，具体做法是：
 ```
 <script>
 	export default {
