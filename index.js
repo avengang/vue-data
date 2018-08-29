@@ -3,7 +3,7 @@ require('./aop.js')
 require('./util.js')
 var _name_uuid_Map = {}
 var _viewDatas = {
-	common_data: {}
+	common: {}
 }
 var _vms = []
 var wait2Update = {}
@@ -37,27 +37,27 @@ function updateViewData() {
 	wait2Update[viewname][viewtag][key] = window.$deepCopy(value)
 }
 function updateCommonDataHelper(vm, key, value) {
-	if(!vm.common_data) {
+	if(!vm.common) {
 		return //其他未从baseview继承的页面
 	}
 	if(Object.prototype.toString.call(value) === '[object Array]') {
-		if(vm.common_data[key] === value) return
+		if(vm.common[key] === value) return
 		for(var j=0;j<value.length;j++) {
-			vm.$set(vm.common_data[key], j, window.$deepCopy(value[j]))
+			vm.$set(vm.common[key], j, window.$deepCopy(value[j]))
 		}
 	} else if(Object.prototype.toString.call(value) === '[object object]') {
-		if(vm.common_data[key] === value) return
+		if(vm.common[key] === value) return
 		for(var _key in value) {
-			vm.$set(vm.common_data[key], _key, value[_key])
+			vm.$set(vm.common[key], _key, value[_key])
 		}
 	} else {
 		var obj = {}
 		obj[key] = value
-		vm.$set(vm.common_data, key, window.$deepCopy(value))
+		vm.$set(vm.common, key, window.$deepCopy(value))
 	}
 }
 function updateCommonData(key, value) {
-	_viewDatas.common_data[key] = value
+	_viewDatas.common[key] = value
 	for(var i=0,ii=_vms.length;i<ii;i++) {
 		var vm = _vms[i]
 		updateCommonDataHelper(vm, key, value)
@@ -72,14 +72,14 @@ var VueData = function(config) {
 	if(!config.data || !config.data()) {
 		config.data = function() {
 			return {
-				common_data: {
+				common: {
 					$init: 'init'
 				}
 			}
 		}
 	} else {
 		var d = config.data()
-		d.common_data = {
+		d.common = {
 			$init: 'init'
 		}
 		config.data = function() {
@@ -167,8 +167,8 @@ var VueData = function(config) {
 						}
 						wait2Update[viewname][viewtag] = null
 					}
-					for(var commonk in _viewDatas.common_data) {
-						updateCommonDataHelper(this, commonk, _viewDatas.common_data[commonk])
+					for(var commonk in _viewDatas.common) {
+						updateCommonDataHelper(this, commonk, _viewDatas.common[commonk])
 					}
 				}
 				if(i === 6) { // beforeDestroy
