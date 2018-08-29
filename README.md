@@ -92,7 +92,7 @@ common对象会默认存在每个vue实例的data属性中，并且和其他在d
 <style>
 </style>
 ```
-**全局对象的新增和修改**, ***$updateCommon***,如果不存在该属性就创建，如果存在改属性就修改
+**全局对象的新增和修改**, ***$updateCommon***,如果不存在该属性就创建，如果存在该属性就修改
 ```
 <script>
 	export default {
