@@ -2,7 +2,9 @@
 require('./aop.js')
 require('./util.js')
 var _name_uuid_Map = {}
-var _viewDatas = {}
+var _viewDatas = {
+	common_data: {}
+}
 var _vms = []
 var wait2Update = {}
 function hash2name(hash) {
@@ -55,14 +57,13 @@ function updateCommonDataHelper(vm, key, value) {
 	}
 }
 function updateCommonData(key, value) {
-	if(!_viewDatas.common_data) _viewDatas.common_data = {}
 	_viewDatas.common_data[key] = value
 	for(var i=0,ii=_vms.length;i<ii;i++) {
 		var vm = _vms[i]
 		updateCommonDataHelper(vm, key, value)
 	}
 }
-var Baseview = function(config) {
+var VueData = function(config) {
 	var cache = !!config.cache
 	var uuid = $getUuid()
 	var viewname = config.viewname || uuid
@@ -167,7 +168,7 @@ var Baseview = function(config) {
 						wait2Update[viewname][viewtag] = null
 					}
 					for(var commonk in _viewDatas.common_data) {
-						updateCommonData(this, commonk, _viewDatas.common_data[commonk])
+						updateCommonDataHelper(this, commonk, _viewDatas.common_data[commonk])
 					}
 				}
 				if(i === 6) { // beforeDestroy
@@ -188,19 +189,8 @@ var Baseview = function(config) {
 			})
 		})(i)
 	}
-// 	var _this = this;
-// 	if(this.beforeRouteLeave) {
-// 		this.beforeRouteLeave = this.beforeRouteLeave._before_(function() {
-// 			_viewDatas[_this.name] = window.$deepCopy(this._data)
-// 		})
-// 	} else {
-// 		this.beforeRouteLeave = function(to, from, next) {
-// 			_viewDatas[_this.name] = window.$deepCopy(this._data)
-// 			next();
-// 		}
-// 	}
 }
-window.Baseview = Baseview
+window.VueData = VueData
 function install(Vue, options) {
 	Vue.prototype.$updateView = updateViewData
 	Vue.prototype.$updateCommon = updateCommonData
