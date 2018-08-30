@@ -30,7 +30,6 @@ function updateViewData() {
 		console.log('传入参数：', arguments)
 		throw new Error('$updateView参数不匹配，参数必须为3（viewname, key, value。其中viewtag为默认值：\'default\'）或者4个(viewname, viewtag, key, value)，传入的参数为：')
 	}
-	
 	for(var n=0,nn=_vms.length;n<nn;n++) {
 		var vm = _vms[n]
 		function fn() {
@@ -49,7 +48,7 @@ function updateViewData() {
 		}
 		var _viewtag = vm._props.viewtag || 'default'
 		if(vm.configviewname === viewname) {
-			if(_viewtag !== -1) {
+			if(+viewtag !== -1) {
 				if(_viewtag !== viewtag) {
 					continue
 				}
@@ -60,11 +59,13 @@ function updateViewData() {
 			}
 		}
 	}
-	if(!wait2Update[viewname])
-		wait2Update[viewname] = {}
-	if(!wait2Update[viewname][viewtag])
-		wait2Update[viewname][viewtag] = {}
-	wait2Update[viewname][viewtag][key] = window.$deepCopy(value)
+	if(viewtag !== -1) {
+		if(!wait2Update[viewname])
+			wait2Update[viewname] = {}
+		if(!wait2Update[viewname][viewtag])
+			wait2Update[viewname][viewtag] = {}
+		wait2Update[viewname][viewtag][key] = window.$deepCopy(value)
+	}
 }
 function updateCommonDataHelper(vm, key, value) {
 	if(!vm.common) {
@@ -196,7 +197,7 @@ var VueData = function(config) {
 								this[k] = waitData[k]
 							}
 						}
-						// wait2Update[viewname][viewtag] = null
+						wait2Update[viewname][viewtag] = null
 					}
 					for(var commonk in _viewDatas.common) {
 						updateCommonDataHelper(this, commonk, _viewDatas.common[commonk])
