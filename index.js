@@ -30,6 +30,36 @@ function updateViewData() {
 		console.log('传入参数：', arguments)
 		throw new Error('$updateView参数不匹配，参数必须为3（viewname, key, value。其中viewtag为默认值：\'default\'）或者4个(viewname, viewtag, key, value)，传入的参数为：')
 	}
+	
+	for(var n=0,nn=_vms.length;n<nn;n++) {
+		var vm = _vms[n]
+		function fn() {
+			if(vm[key] === value) return // 没变化，不更新
+			if(Object.prototype.toString.call(value) === '[object Array]') {
+				for(var j=0;j<value.length;j++) {
+					vm.$set(vm[key], j, window.$deepCopy(value[j]))
+				}
+			} else if(Object.prototype.toString.call(value) === '[object object]') {
+				for(var _key in value) {
+					vm.$set(vm[key], _key, window.$deepCopy(value[_key]))
+				}
+			} else {
+				vm[key] = value
+			}
+		}
+		var _viewtag = vm._props.viewtag || 'default'
+		if(vm.configviewname === viewname) {
+			if(_viewtag !== -1) {
+				if(_viewtag !== viewtag) {
+					continue
+				}
+				fn()
+				return
+			} else {
+				fn()
+			}
+		}
+	}
 	if(!wait2Update[viewname])
 		wait2Update[viewname] = {}
 	if(!wait2Update[viewname][viewtag])
@@ -64,18 +94,19 @@ function updateCommonData(key, value) {
 	}
 }
 var VueData = function(config) {
-	var cache = !!config.cache
+	// config = window.$deepCopy(config)
+	config.isvuedata = true
 	var uuid = $getUuid()
 	var viewname = config.viewname || uuid
 	if(_name_uuid_Map[config.viewname]) throw new Error('viewname不能重复, 已经存在viewname = ' + config.viewname + ' 的对象')
 	_name_uuid_Map[viewname] = uuid
 	if(!config.data || !config.data()) {
 		config.data = function() {
-			return {
+			return window.$deepCopy({
 				common: {
 					$init: 'init'
 				}
-			}
+			})
 		}
 	} else {
 		var d = config.data()
@@ -83,7 +114,7 @@ var VueData = function(config) {
 			$init: 'init'
 		}
 		config.data = function() {
-			return d
+			return window.$deepCopy(d)
 		}
 	}
 	if(!config.props) {
@@ -114,24 +145,24 @@ var VueData = function(config) {
 					_vms.push(this)
 				}
 				if(i === 2) { // beforeMount
-					this._viewname = _this.name = uuid
-					var viewtag = this.viewtag || 'default'
-					if(cache) { // 如果需要缓存的话就要把该baseview的对象data加入字段
+					this.configviewname = viewname
+					this._viewname = uuid
+					this.$set(this.common, "randNum", window.$getUuid())
+					var viewtag = this._props.viewtag || 'default'
+					if(this.cache) { // 如果需要缓存的话就要把该baseview的对象data加入字段
 						for(var k in _viewDatas[_this.name][viewtag]) {
 							if(this[k] === undefined) this.$set(this.$data, k, null)
 						}
 					}
 				}
-				if(i === 3) { // mounted
-					this.$el.classList.add('_js_isbaseview' + uuid) //给每个继承自该对象的页面根节点添加样式
-				}
+// 				if(i === 3) { // mounted
+// 					this.$el.classList.add('_js_viewdata_' + uuid + '-' + viewtag) //给每个继承自该对象的页面根节点添加样式
+// 				}
 				_this['_' + callbacks[i]] && _this['_' + callbacks[i]]()
 			})._after_(function() {
 				if(i === 3) { // mounted
-					var viewtag = this.viewtag || 'default'
-					if(cache) { // 有指定该baseview是缓存的话就要在渲染完之后加入缓存内容
-						var els = document.getElementsByClassName('_js_isbaseview' + uuid)
-						if(!els) return //没显示就不用浪费性能去更新data
+					var viewtag = this._props.viewtag || 'default'
+					if(this.cache) { // 有指定该baseview是缓存的话就要在渲染完之后加入缓存内容
 						var viewDatas = _viewDatas[this._viewname][viewtag]
 						for(var k in viewDatas) {
 							if(this[k] === viewDatas[k]) continue // 没变化，不更新
@@ -165,7 +196,7 @@ var VueData = function(config) {
 								this[k] = waitData[k]
 							}
 						}
-						wait2Update[viewname][viewtag] = null
+						// wait2Update[viewname][viewtag] = null
 					}
 					for(var commonk in _viewDatas.common) {
 						updateCommonDataHelper(this, commonk, _viewDatas.common[commonk])
@@ -178,8 +209,8 @@ var VueData = function(config) {
 							return
 						}
 					}
-					if(cache) {
-						var viewtag = this.viewtag || 'default'
+					if(this.cache) {
+						var viewtag = this._props.viewtag || 'default'
 						_viewDatas[this._viewname][viewtag] = window.$deepCopy(this._data)
 					} else {
 						_viewDatas[this._viewname][viewtag] = {}
