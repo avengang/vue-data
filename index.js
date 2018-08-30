@@ -81,16 +81,12 @@ var VueData = function(config) {
 	if(!config.data || !config.data()) {
 		config.data = function() {
 			return util.$deepCopy({
-				common: {
-					$init: 'init'
-				}
+				common: {}
 			})
 		}
 	} else {
 		var d = config.data()
-		d.common = {
-			$init: 'init'
-		}
+		d.common = {}
 		config.data = function() {
 			return util.$deepCopy(d)
 		}
@@ -115,7 +111,6 @@ var VueData = function(config) {
 		this.configviewname = viewname
 		this._viewname = uuid
 		this.cache = cache
-		this.$set(this.common, "randNum", util.$getUuid())
 		var viewtag = this._props.viewtag || 'default'
 		if(this.cache) { // 如果需要缓存的话就要把该对象data加入字段
 			for(var k in _viewDatas[this._viewname][viewtag]) {
@@ -123,7 +118,6 @@ var VueData = function(config) {
 			}
 		}
 		oldBeforeMount && oldBeforeMount.bind(this)()
-		console.log(this)
 	}
 	var oldMounted = config.mounted
 	config.mounted = function() {
@@ -160,12 +154,7 @@ var VueData = function(config) {
 		}
 	}
 	_viewDatas[uuid] = {}
-	var callbacks = ['beforeCreate', 'created', 'beforeMount', 'mounted', 'beforeUpdate', 'updated', 'beforeDestroy', 'destroyed']
-	for(var k in config) {
-		if(config.hasOwnProperty(k) && !util.$isUndefinedOrNull(config[k])) {
-			this[k] = config[k];
-		}
-	}
+	return config
 }
 window.VueData = VueData
 function install(Vue, options) {
