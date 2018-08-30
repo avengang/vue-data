@@ -156,6 +156,8 @@ var VueData = function(config) {
 	_viewDatas[uuid] = {}
 	return config
 }
+VueData.$updateView = updateViewData
+VueData.$updateCommon = updateCommonData
 window.VueData = VueData
 function install(Vue, options) {
 	Vue.prototype.$updateView = updateViewData
