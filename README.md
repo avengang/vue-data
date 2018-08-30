@@ -162,4 +162,8 @@ common对象会默认存在每个vue实例的data属性中，并且和其他在d
 此时，因为有多个改vue文件创建的vue实例，所以如果指定该vue文件生成的vue实例的属性进行修改的话，需要指定viewtag,如果viewtag传-1则会改动所有该vue文件模板创建出来的实例。
 ```
 this.$updateView('myview', 'tag2', [{text: "123", route: '/sdasg'}])
+this.$updateView('myview', '-1', [{text: "123", route: '/sdasg'}])
 ```
+如果传-1的话**只会修改当前已经存在的vue实例的data属性**
+如果传入的是具体的tag的话，
+若指定tag对应的的vue实例在页面中是未销毁状态就会立即更新其data属性，否则会等待下次实例创建时才更新其data属性
