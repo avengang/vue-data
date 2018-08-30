@@ -94,8 +94,7 @@ function updateCommonData(key, value) {
 	}
 }
 var VueData = function(config) {
-	// config = window.$deepCopy(config)
-	config.isvuedata = true
+	var cache = config.cache
 	var uuid = $getUuid()
 	var viewname = config.viewname || uuid
 	if(_name_uuid_Map[config.viewname]) throw new Error('viewname不能重复, 已经存在viewname = ' + config.viewname + ' 的对象')
@@ -147,10 +146,11 @@ var VueData = function(config) {
 				if(i === 2) { // beforeMount
 					this.configviewname = viewname
 					this._viewname = uuid
+					this.cache = cache
 					this.$set(this.common, "randNum", window.$getUuid())
 					var viewtag = this._props.viewtag || 'default'
 					if(this.cache) { // 如果需要缓存的话就要把该baseview的对象data加入字段
-						for(var k in _viewDatas[_this.name][viewtag]) {
+						for(var k in _viewDatas[this._viewname][viewtag]) {
 							if(this[k] === undefined) this.$set(this.$data, k, null)
 						}
 					}
@@ -206,7 +206,7 @@ var VueData = function(config) {
 					for(var n=0,nn=_vms.length;n<nn;n++) {
 						if(_vms[n] === this) {
 							_vms.splice(n, 1)
-							return
+							break
 						}
 					}
 					if(this.cache) {
