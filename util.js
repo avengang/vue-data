@@ -1,5 +1,6 @@
 /* eslint-disable */
-window.$deepCopy = function (obj, cache = []) {
+
+var $deepCopy = function (obj, cache = []) {
 
   function find (list, f) {
     return list.filter(f)[0]
@@ -30,7 +31,7 @@ window.$deepCopy = function (obj, cache = []) {
 
   return copy
 }
-window.$getElLink = function(el) {
+var $getElLink = function(el) {
 	var result = ''
 	while(el) {
 		result += el.nodeName + el.id + el.className
@@ -39,7 +40,7 @@ window.$getElLink = function(el) {
 	return result
 }
 
-window.$getUuid = function() {
+var $getUuid = function() {
 	var s = [];
 	var hexDigits = "0123456789abcdef";
 	for (var i = 0; i < 36; i++) {
@@ -50,4 +51,9 @@ window.$getUuid = function() {
 	s[8] = s[13] = s[18] = s[23] = "_";
 	var uuid = s.join("");
 	return uuid;
+}
+export default {
+	$deepCopy,
+	$getElLink,
+	$getUuid
 }

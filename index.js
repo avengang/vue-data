@@ -1,6 +1,7 @@
 /* eslint-disable */
 require('./aop.js')
-require('./util.js')
+import util from './util.js'
+console.log(util)
 var _name_uuid_Map = {}
 var _viewDatas = {
 	common: {}
@@ -36,11 +37,11 @@ function updateViewData() {
 			if(vm[key] === value) return // 没变化，不更新
 			if(Object.prototype.toString.call(value) === '[object Array]') {
 				for(var j=0;j<value.length;j++) {
-					vm.$set(vm[key], j, window.$deepCopy(value[j]))
+					vm.$set(vm[key], j, util.$deepCopy(value[j]))
 				}
 			} else if(Object.prototype.toString.call(value) === '[object object]') {
 				for(var _key in value) {
-					vm.$set(vm[key], _key, window.$deepCopy(value[_key]))
+					vm.$set(vm[key], _key, util.$deepCopy(value[_key]))
 				}
 			} else {
 				vm[key] = value
@@ -64,7 +65,7 @@ function updateViewData() {
 			wait2Update[viewname] = {}
 		if(!wait2Update[viewname][viewtag])
 			wait2Update[viewname][viewtag] = {}
-		wait2Update[viewname][viewtag][key] = window.$deepCopy(value)
+		wait2Update[viewname][viewtag][key] = util.$deepCopy(value)
 	}
 }
 function updateCommonDataHelper(vm, key, value) {
@@ -74,7 +75,7 @@ function updateCommonDataHelper(vm, key, value) {
 	if(Object.prototype.toString.call(value) === '[object Array]') {
 		if(vm.common[key] === value) return
 		for(var j=0;j<value.length;j++) {
-			vm.$set(vm.common[key], j, window.$deepCopy(value[j]))
+			vm.$set(vm.common[key], j, util.$deepCopy(value[j]))
 		}
 	} else if(Object.prototype.toString.call(value) === '[object object]') {
 		if(vm.common[key] === value) return
@@ -84,7 +85,7 @@ function updateCommonDataHelper(vm, key, value) {
 	} else {
 		var obj = {}
 		obj[key] = value
-		vm.$set(vm.common, key, window.$deepCopy(value))
+		vm.$set(vm.common, key, util.$deepCopy(value))
 	}
 }
 function updateCommonData(key, value) {
@@ -96,13 +97,13 @@ function updateCommonData(key, value) {
 }
 var VueData = function(config) {
 	var cache = config.cache
-	var uuid = $getUuid()
+	var uuid = util.$getUuid()
 	var viewname = config.viewname || uuid
 	if(_name_uuid_Map[config.viewname]) throw new Error('viewname不能重复, 已经存在viewname = ' + config.viewname + ' 的对象')
 	_name_uuid_Map[viewname] = uuid
 	if(!config.data || !config.data()) {
 		config.data = function() {
-			return window.$deepCopy({
+			return util.$deepCopy({
 				common: {
 					$init: 'init'
 				}
@@ -114,7 +115,7 @@ var VueData = function(config) {
 			$init: 'init'
 		}
 		config.data = function() {
-			return window.$deepCopy(d)
+			return util.$deepCopy(d)
 		}
 	}
 	if(!config.props) {
@@ -148,7 +149,7 @@ var VueData = function(config) {
 					this.configviewname = viewname
 					this._viewname = uuid
 					this.cache = cache
-					this.$set(this.common, "randNum", window.$getUuid())
+					this.$set(this.common, "randNum", util.$getUuid())
 					var viewtag = this._props.viewtag || 'default'
 					if(this.cache) { // 如果需要缓存的话就要把该baseview的对象data加入字段
 						for(var k in _viewDatas[this._viewname][viewtag]) {
@@ -169,7 +170,7 @@ var VueData = function(config) {
 							if(this[k] === viewDatas[k]) continue // 没变化，不更新
 							if(Object.prototype.toString.call(viewDatas[k]) === '[object Array]') {
 								for(var j=0;j<viewDatas[k].length;j++) {
-									this.$set(this[k], j, window.$deepCopy(viewDatas[k][j]))
+									this.$set(this[k], j, util.$deepCopy(viewDatas[k][j]))
 								}
 							} else if(Object.prototype.toString.call(viewDatas[k]) === '[object object]') {
 								for(var _key in viewDatas[k]) {
@@ -187,7 +188,7 @@ var VueData = function(config) {
 							if(this[k] === waitData[k]) continue // 没变化，不更新
 							if(Object.prototype.toString.call(waitData[k]) === '[object Array]') {
 								for(var j=0;j<waitData[k].length;j++) {
-									this.$set(this[k], j, window.$deepCopy(waitData[k][j]))
+									this.$set(this[k], j, util.$deepCopy(waitData[k][j]))
 								}
 							} else if(Object.prototype.toString.call(waitData[k]) === '[object object]') {
 								for(var _key in waitData[k]) {
@@ -212,7 +213,7 @@ var VueData = function(config) {
 					}
 					if(this.cache) {
 						var viewtag = this._props.viewtag || 'default'
-						_viewDatas[this._viewname][viewtag] = window.$deepCopy(this._data)
+						_viewDatas[this._viewname][viewtag] = util.$deepCopy(this._data)
 					} else {
 						_viewDatas[this._viewname][viewtag] = {}
 					}
