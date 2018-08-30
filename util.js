@@ -52,8 +52,34 @@ var $getUuid = function() {
 	var uuid = s.join("");
 	return uuid;
 }
+var $setSingle = function(k, value, dist) {
+	if(dist[k] === value) return // 没变化，不更新
+	if(Object.prototype.toString.call(value) === '[object Array]') {
+		for(var j=0;j<value.length;j++) {
+			dist.$set(dist[k], j, $deepCopy(value[j]))
+		}
+	} else if(Object.prototype.toString.call(value) === '[object object]') {
+		for(var _key in value) {
+			dist.$set(dist[k], _key, value[_key])
+		}
+	} else {
+		dist[k] = value
+	}
+}
+var $set = function(src, dist) {
+	for(var k in src) {
+		$setSingle(k, src[k], dist)
+	}
+}
+var $isUndefinedOrNull = function(arg) {
+	if(arg === undefined || arg === null) return true
+	return false
+}
 export default {
 	$deepCopy,
 	$getElLink,
-	$getUuid
+	$getUuid,
+	$set,
+	$setSingle,
+	$isUndefinedOrNull
 }

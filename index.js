@@ -1,19 +1,11 @@
 /* eslint-disable */
 import util from './util.js'
-console.log(util)
 var _name_uuid_Map = {}
 var _viewDatas = {
 	common: {}
 }
 var _vms = []
 var wait2Update = {}
-function hash2name(hash) {
-	return encodeURIComponent(hash).replace(/%/g, '_')
-}
-function isUndefinedOrNull(arg) {
-	if(arg === undefined || arg === null) return true
-	return false
-}
 function updateViewData() {
 	var viewname, viewtag, key, value
 	if(arguments.length === 4) {
@@ -32,30 +24,16 @@ function updateViewData() {
 	}
 	for(var n=0,nn=_vms.length;n<nn;n++) {
 		var vm = _vms[n]
-		function fn() {
-			if(vm[key] === value) return // 没变化，不更新
-			if(Object.prototype.toString.call(value) === '[object Array]') {
-				for(var j=0;j<value.length;j++) {
-					vm.$set(vm[key], j, util.$deepCopy(value[j]))
-				}
-			} else if(Object.prototype.toString.call(value) === '[object object]') {
-				for(var _key in value) {
-					vm.$set(vm[key], _key, util.$deepCopy(value[_key]))
-				}
-			} else {
-				vm[key] = value
-			}
-		}
 		var _viewtag = vm._props.viewtag || 'default'
 		if(vm.configviewname === viewname) {
 			if(+viewtag !== -1) {
 				if(_viewtag !== viewtag) {
 					continue
 				}
-				fn()
+				util.$setSingle(key, value, vm)
 				return
 			} else {
-				fn()
+				util.$setSingle(key, value, vm)
 			}
 		}
 	}
@@ -153,38 +131,12 @@ var VueData = function(config) {
 		var viewtag = this._props.viewtag || 'default'
 		if(this.cache) { // 有指定该对象需要缓存的话就要在渲染完之后加入缓存内容
 			var viewDatas = _viewDatas[this._viewname][viewtag]
-			for(var k in viewDatas) {
-				if(this[k] === viewDatas[k]) continue // 没变化，不更新
-				if(Object.prototype.toString.call(viewDatas[k]) === '[object Array]') {
-					for(var j=0;j<viewDatas[k].length;j++) {
-						this.$set(this[k], j, util.$deepCopy(viewDatas[k][j]))
-					}
-				} else if(Object.prototype.toString.call(viewDatas[k]) === '[object object]') {
-					for(var _key in viewDatas[k]) {
-						this.$set(this[k], _key, viewDatas[k][_key])
-					}
-				} else {
-					this[k] = viewDatas[k]
-				}
-			}
+			util.$set(viewDatas, this)
 			_viewDatas[this._viewname][viewtag] = null
 		}
 		if(wait2Update[viewname] && wait2Update[viewname][viewtag]) {
 			var waitData = wait2Update[viewname][viewtag]
-			for(var k in waitData) {
-				if(this[k] === waitData[k]) continue // 没变化，不更新
-				if(Object.prototype.toString.call(waitData[k]) === '[object Array]') {
-					for(var j=0;j<waitData[k].length;j++) {
-						this.$set(this[k], j, util.$deepCopy(waitData[k][j]))
-					}
-				} else if(Object.prototype.toString.call(waitData[k]) === '[object object]') {
-					for(var _key in waitData[k]) {
-						this.$set(this[k], _key, waitData[k][_key])
-					}
-				} else {
-					this[k] = waitData[k]
-				}
-			}
+			util.$set(waitData, this)
 			wait2Update[viewname][viewtag] = null
 		}
 		for(var commonk in _viewDatas.common) {
@@ -210,7 +162,7 @@ var VueData = function(config) {
 	_viewDatas[uuid] = {}
 	var callbacks = ['beforeCreate', 'created', 'beforeMount', 'mounted', 'beforeUpdate', 'updated', 'beforeDestroy', 'destroyed']
 	for(var k in config) {
-		if(config.hasOwnProperty(k) && !isUndefinedOrNull(config[k])) {
+		if(config.hasOwnProperty(k) && !util.$isUndefinedOrNull(config[k])) {
 			this[k] = config[k];
 		}
 	}
