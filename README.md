@@ -1,6 +1,7 @@
 # vue-data
-vue-data是一个vue实例对象数据和方法的管理工具。
-可以实现 实例的**全局共享对象**、**缓存**、**数据修改**、**方法调用**。
+vue-data是一个vue实例对象数据的管理工具。
+可以进行**全局数据共享**、**数据缓存**、**指定实例的数据更新和方法调用**。
+使用非常简单，只暴露一个api函数：$vuedataDo，学习成本远远低于同类插件。
 ## 安装
 ```
 npm install vue-data --save-dev
@@ -42,7 +43,7 @@ vue-data会在window对象中定义一个全局对象：VueData。
 <style>
 </style>
 ```
-当然，如果确定为每个vue文件都添加vue-data功能的话最好结合专门为vue-data写的**vue-data-loader**来使用，
+当然，如果确定为**每个vue文件**都添加vue-data功能的话最好结合专门为vue-data写的**vue-data-loader**来使用，
 结合vue-data-loader之后，像编写普通vue文件一样了：
 [vue-data-loader的使用方式](https://github.com/avengang/vue-data-loader/tree/master)
 ### $vuedataDo()
