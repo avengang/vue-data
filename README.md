@@ -143,6 +143,12 @@ this.$vuedataDo('detailview', '-1', products, [{title: "商品2", content: '内�
 在非vue文件中同样可以使用$vuedataDo,因为VueData对象放到了window上，
 所以可以在任意js文件中通过VueData.$vuedataDo的形式调用该方法。
 比如远端服务器数据请求的方法得到数据之后，或者其他第三方js文件中想改变vue对象，调用对象方法和common数据的时候。
+```
+//第三方js文件
+VueData.$vuedataDo('abc', '123') // 修改全局属性abc的值为123
+VueData.$vuedataDo('myview', '', 'title', 'hello') // 修改属性
+VueData.$vuedataDo('myview', 'testMethod') // 调用方法
+```
 ### 关于封装性
 因为可以在已经引入vue-data文件之后任何位置改变或者调用（某个或同一个viewname的多个实例的）方法，
 这似乎过于自由了，建议尽量把对自身vue文件data属性修改的方法放在该vue文件methods里面，再由外部调用，
