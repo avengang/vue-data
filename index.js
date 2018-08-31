@@ -6,7 +6,8 @@ var _viewDatas = {
 }
 var _vms = []
 var wait2Update = {}
-function updateInstance() {
+function vuedataDo() {
+	//TODO:判断同一个viewname下viewtag是否重复
 	var viewname, viewtag, key, value, method, isMethod = false
 	if(arguments.length === 4) { // viewname, viewtag, key, value
 		viewname = arguments[0]
@@ -18,9 +19,12 @@ function updateInstance() {
 		viewtag = arguments[1]
 		method = arguments[2]
 		isMethod = true
+	} else if(arguments.length === 2) { // 更新全局属性
+		updateCommonData(arguments[0], arguments[1])
+		return
 	} else {
 		console.log('传入参数：', arguments)
-		throw new Error('$updateInstance参数个数不匹配，参数个数必须为3（viewname, viewtag, method）或者4个(viewname, viewtag, key, value)：')
+		throw new Error('$vuedataDo参数个数不匹配，参数个数必须为3（viewname, viewtag, method）或者4个(viewname, viewtag, key, value)：')
 	}
 	viewtag = viewtag || 'default'
 	for(var n=0,nn=_vms.length;n<nn;n++) {
@@ -165,11 +169,11 @@ var VueData = function(config) {
 	_viewDatas[uuid] = {}
 	return config
 }
-VueData.$updateInstance = updateInstance
+VueData.$vuedataDo = vuedataDo
 VueData.$updateCommon = updateCommonData
 window.VueData = VueData
 function install(Vue, options) {
-	Vue.prototype.$updateInstance = updateInstance
+	Vue.prototype.$vuedataDo = vuedataDo
 	Vue.prototype.$updateCommon = updateCommonData
 }
 export default install
