@@ -36,7 +36,7 @@ vue-data会在window对象中定义一个全局对象：VueData。
     cache: true, // 是否缓存,表示该VueData对象是需要缓存的，那改vue实例在销毁前将会把data对象缓存起来，
                  //等待下次create该对象的时候直接将缓存data值赋值给新的vue对象。
     viewname: 'myview', //vuedata实例名称，是为了指定修改数据和指定调用方法的时候定位到具体实例，
-		                    //如果不指定该属性，该属性为'default'
+                        //如果不指定该属性，该属性为'default'
     data() {
     },
     methods: {
@@ -54,10 +54,12 @@ vue-data会在window对象中定义一个全局对象：VueData。
 ### $vuedataDo()
 vue-data的唯一暴露方法。  
 
+$vuedataDo(key, value):修改全局属性key的值为value；  
 
-$vuedataDo(key, value):修改全局属性key的值为value；
-$vuedataDo(viewname, viewtag, method):调用指定viewname，viewtag的实例的method方法；
-$vuedataDo(viewname, viewtag, key, value):修改指定viewname，viewtag的实例的key属性值为value；
+$vuedataDo(viewname, viewtag, method):调用指定viewname，viewtag的实例的method方法；  
+
+$vuedataDo(viewname, viewtag, key, value):修改指定viewname，viewtag的实例的key属性值为value；  
+
 ```
 <template>
   <div>
