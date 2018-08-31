@@ -130,4 +130,6 @@ this.$vuedataDo('myview', '-1', 'titles', [{text: "123", route: '/sdasg'}])
 this.$vuedataDo('detailview', 'tag1', products, [{title: "商品1", content: '内容1'}])
 this.$vuedataDo('detailview', '-1', products, [{title: "商品2", content: '内容2'}])
 ```
-
+### 非vue文件中使用$vuedataDo
+在非vue文件中同样可以使用$vuedataDo,因为VueData对象放到了window上，所以可以在任意js文件中通过VueData.$vuedataDo的形式调用该方法。
+比如远端服务器数据请求的方法得到数据之后，或者其他第三方js文件中想改变vue对象，调用对象方法和common数据的时候。

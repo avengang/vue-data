@@ -170,10 +170,8 @@ var VueData = function(config) {
 	return config
 }
 VueData.$vuedataDo = vuedataDo
-VueData.$updateCommon = updateCommonData
 window.VueData = VueData
 function install(Vue, options) {
 	Vue.prototype.$vuedataDo = vuedataDo
-	Vue.prototype.$updateCommon = updateCommonData
 }
 export default install
