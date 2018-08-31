@@ -17,27 +17,27 @@ vue-data会在window对象中定义一个全局对象：VueData。
 如果vue文件需要使用vue-data的功能就必须要通过VueData的方式生成对象来构建vue实例。
 ```
 <template>
-	<div>
-	<!-- 
-		每个vue实例中的common对象是相互独立的，可以通过调用$vuedataDo(key, value)的方式修改并同步到所有实例
-		 因为每个实例common对象相互独立，所以可以把common对象和对象中的属性当做普通data里面的属性使用，不如watch，computed等
-		 不建议在实例中通过this.common的形式对该对象进行修改和删除
-	-->
-		页面{{common.abc}}
-	</div>
+  <div>
+  <!-- 
+    每个vue实例中的common对象是相互独立的，可以通过调用$vuedataDo(key, value)的方式修改并同步到所有实例
+     因为每个实例common对象相互独立，所以可以把common对象和对象中的属性当做普通data里面的属性使用，不如watch，computed等
+     不建议在实例中通过this.common的形式对该对象进行修改和删除
+  -->
+    页面{{common.abc}}
+  </div>
 </template>
 
 <script>
-	
-	export default new window.VueData({
-		cache: true, // 是否缓存,表示该VueData对象是需要缓存的，那改vue实例在销毁前将会把data对象缓存起来，等待下次create该对象的时候直接将缓存data值赋值给新的vue对象。
-		viewname: 'myview', //vuedata实例名称，是为了指定修改数据和指定调用方法的时候定位到具体实例，如果不指定该属性，该属性为'default'
-		data() {
-		},
-		methods: {
-			
-		}
-	})
+  
+  export default new window.VueData({
+    cache: true, // 是否缓存,表示该VueData对象是需要缓存的，那改vue实例在销毁前将会把data对象缓存起来，等待下次create该对象的时候直接将缓存data值赋值给新的vue对象。
+    viewname: 'myview', //vuedata实例名称，是为了指定修改数据和指定调用方法的时候定位到具体实例，如果不指定该属性，该属性为'default'
+    data() {
+    },
+    methods: {
+      
+    }
+  })
 </script>
 
 <style>
@@ -54,31 +54,31 @@ $vuedataDo(viewname, viewtag, method):调用指定viewname，viewtag的实例的
 $vuedataDo(viewname, viewtag, key, value):修改指定viewname，viewtag的实例的key属性值为value；
 ```
 <template>
-	<div>
-		页面
-	</div>
+  <div>
+    页面
+  </div>
 </template>
 
 <script>
-	
-	export default {
-		data() {
-		},
-		methods: {
-			// 修改属性testCommon的值为abc并同步到其他VueData对象
-			//'abc'同样的可以替换成数组或者对象，因为内部实现用到了Vue.set
-			this.$vuedataDo('testCommon', 'abc')
-			
-			// 设置viewname为myview,viewtag为的实例的titles属性为[{text: "关于我们", route: '/about'}]
-			// tag1(tag1可以替换成 '': 'default'; '-1': 所有viewname为myview)
-			//tag可以为'','-1',其他
-			this.$vuedataDo('myview', 'tag1', 'titles', [{text: "关于我们", route: '/about'}])
-			
-			// 调用viewname为myview,viewtag为tag1的实例方法 myMethod
-			// tag1(tag1可以替换成 '': 'default'; '-1': 所有viewname为myview)
-			this.$vuedataDo('myview', 'tag1', 'myMethod']) // 
-		}
-	}
+  
+  export default {
+    data() {
+    },
+    methods: {
+      // 修改属性testCommon的值为abc并同步到其他VueData对象
+      //'abc'同样的可以替换成数组或者对象，因为内部实现用到了Vue.set
+      this.$vuedataDo('testCommon', 'abc')
+      
+      // 设置viewname为myview,viewtag为的实例的titles属性为[{text: "关于我们", route: '/about'}]
+      // tag1(tag1可以替换成 '': 'default'; '-1': 所有viewname为myview)
+      //tag可以为'','-1',其他
+      this.$vuedataDo('myview', 'tag1', 'titles', [{text: "关于我们", route: '/about'}])
+      
+      // 调用viewname为myview,viewtag为tag1的实例方法 myMethod
+      // tag1(tag1可以替换成 '': 'default'; '-1': 所有viewname为myview)
+      this.$vuedataDo('myview', 'tag1', 'myMethod']) // 
+    }
+  }
 </script>
 
 <style>
@@ -99,39 +99,39 @@ viewtag变量传值
 必须为实例指定viewtag来区分同一个vue文件构造的不同实例.
 ```
 <template>
-	<div>
-		<myview :datas="titles" viewtag="myview1"></myview>
-		<myview :datas="titles" viewtag="myview2"></myview>
-	</div>
+  <div>
+    <myview :datas="titles" viewtag="myview1"></myview>
+    <myview :datas="titles" viewtag="myview2"></myview>
+  </div>
 </template>
 ```
 ```
 <template>
-	<div>
-	<!-- 假设改组件的viewname为 detailview -->
-		<detailview :datas="products" :viewtag="mytag"></detailview>
-		<!-- 相关商品列表 -->
-		<div @click="someLikeFn">商品1</div>
-		<div @click="someLikeFn">商品2</div>
-	</div>
+  <div>
+  <!-- 假设改组件的viewname为 detailview -->
+    <detailview :datas="products" :viewtag="mytag"></detailview>
+    <!-- 相关商品列表 -->
+    <div @click="someLikeFn">商品1</div>
+    <div @click="someLikeFn">商品2</div>
+  </div>
 </template>
 <script>
-	window._mytag = 1
-	export default {
-		data() {
-			return {
-				mytag: 'tag1',
-				titles: [],
-				products: []
-			}
-		},
-		methods: {
-			someLikeFn() {
-				this.mytag = 'tag' + (++window._mytag) // 使viewtag同viewname下具有唯一性
-				this.$router.push({path: '/product/detail'}) // 详情页面跳到详情页面
-			}
-		}
-	}
+  window._mytag = 1
+  export default {
+    data() {
+      return {
+        mytag: 'tag1',
+        titles: [],
+        products: []
+      }
+    },
+    methods: {
+      someLikeFn() {
+        this.mytag = 'tag' + (++window._mytag) // 使viewtag同viewname下具有唯一性
+        this.$router.push({path: '/product/detail'}) // 详情页面跳到详情页面
+      }
+    }
+  }
 </script>
 ```
 此时，因为有多个改vue文件创建的vue实例，所以如果指定该vue文件生成的vue实例的属性进行修改的话，
