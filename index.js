@@ -6,22 +6,23 @@ var _viewDatas = {
 }
 var _vms = []
 var wait2Update = {}
-function updateViewData() {
-	var viewname, viewtag, key, value
-	if(arguments.length === 4) {
+function updateInstance() {
+	var viewname, viewtag, key, value, method, isMethod = false
+	if(arguments.length === 4) { // viewname, viewtag, key, value
 		viewname = arguments[0]
 		viewtag = arguments[1]
 		key = arguments[2]
 		value = arguments[3]
-	} else if(arguments.length === 3) {
+	} else if(arguments.length === 3) { // viewname, viewtag, method
 		viewname = arguments[0]
-		viewtag = 'default'
-		key = arguments[1]
-		value = arguments[2]
+		viewtag = arguments[1]
+		method = arguments[2]
+		isMethod = true
 	} else {
 		console.log('传入参数：', arguments)
-		throw new Error('$updateView参数不匹配，参数必须为3（viewname, key, value。其中viewtag为默认值：\'default\'）或者4个(viewname, viewtag, key, value)，传入的参数为：')
+		throw new Error('$updateInstance参数个数不匹配，参数个数必须为3（viewname, viewtag, method）或者4个(viewname, viewtag, key, value)：')
 	}
+	viewtag = viewtag || 'default'
 	for(var n=0,nn=_vms.length;n<nn;n++) {
 		var vm = _vms[n]
 		var _viewtag = vm._props.viewtag || 'default'
@@ -30,14 +31,22 @@ function updateViewData() {
 				if(_viewtag !== viewtag) {
 					continue
 				}
-				util.$setSingle(key, value, vm)
+				if(isMethod) {
+					vm[method] && vm[method]()
+				} else {
+					util.$setSingle(key, value, vm)
+				}
 				return
 			} else {
-				util.$setSingle(key, value, vm)
+				if(isMethod) {
+					vm[method] && vm[method]()
+				} else {
+					util.$setSingle(key, value, vm)
+				}
 			}
 		}
 	}
-	if(viewtag !== -1) {
+	if(viewtag !== -1 && !isMethod) {
 		if(!wait2Update[viewname])
 			wait2Update[viewname] = {}
 		if(!wait2Update[viewname][viewtag])
@@ -156,11 +165,11 @@ var VueData = function(config) {
 	_viewDatas[uuid] = {}
 	return config
 }
-VueData.$updateView = updateViewData
+VueData.$updateInstance = updateInstance
 VueData.$updateCommon = updateCommonData
 window.VueData = VueData
 function install(Vue, options) {
-	Vue.prototype.$updateView = updateViewData
+	Vue.prototype.$updateInstance = updateInstance
 	Vue.prototype.$updateCommon = updateCommonData
 }
 export default install

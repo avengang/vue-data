@@ -1,5 +1,6 @@
 # vue-data
-vue-data是一个vue实例$data对象的管理工具，可以提供data数据**全局共享**、**缓存**实例data数据和vue实例的**指定修改**data属性等功能。
+vue-data是一个vue实例对象数据和方法的管理工具。
+可以实现 实例的**共享全局对象**、**缓存**、**数据修改**、**方法调用**。
 ## 安装
 ```
 npm install vue-data --save-dev
@@ -15,15 +16,15 @@ Vue.use(vuedata)
 ```
 <template>
 	<div>
-		页面
+		页面{{common.abc}}<!-- abc为全局共享属性 -->
 	</div>
 </template>
 
 <script>
 	
 	export default new window.VueData({
-		cache: true, // 是否缓存
-		viewname: 'myview', //vuedata实例名称
+		cache: true, // 是否缓存,表示该VueData对象是需要缓存的，那改vue实例在销毁前将会把data对象缓存起来，等待下次create该对象的时候直接将缓存data值赋值给新的vue对象。
+		viewname: 'myview', //vuedata实例名称，是为了指定修改数据和指定调用方法的时候定位到具体实例，如果不指定该属性，该属性为'default'
 		data() {
 		},
 		methods: {
@@ -59,8 +60,6 @@ Vue.use(vuedata)
 ### 全局共享
 顾名思义，全局共享就是所有的vue文件中可以共享一个对象的值，并且共享对象值的改变会直接导致页面更新，这个对象就是**common**对象，
 common对象会默认存在每个vue实例的data属性中，并且和其他在data中的属相并无区别，依然可以watch，computed等操作。
-**cache**: true)：表示该VueData对象是需要缓存的，那改vue实例在销毁前将会把data对象缓存起来，等待下次create该对象的时候直接将缓存data值赋值给新的vue对象。
-**viewname**: 'myview')：为该VueData对象取别名，以便后面指定修改操作使用。
 ```
 <template>
 	<div>
@@ -100,7 +99,7 @@ common对象会默认存在每个vue实例的data属性中，并且和其他在d
 		},
 		methods: {
 			someFn() {
-				this.$updateCommon('testCommon', 'abc')
+				this.$updateCommon('testCommon', 'abc') // 修改全局属性testCommon的值为abc，'abc'同样的可以替换成数组或者对象，因为内部实现用到了Vue.set
 			}
 		}
 	}
@@ -108,7 +107,7 @@ common对象会默认存在每个vue实例的data属性中，并且和其他在d
 ```
 
 ### 指定修改
-在vue实例中可使用方法：**$updateView**来修改指定的另一个vue实例的data属性值，具体做法是：
+在vue实例中可使用方法：**$updateInstance**来修改指定的另一个vue实例的data属性值或者调用该实例的方法，具体做法是：
 ```
 <script>
 	export default {
@@ -116,7 +115,11 @@ common对象会默认存在每个vue实例的data属性中，并且和其他在d
 		},
 		methods: {
 			someFn() {
-				this.$updateView('myview', 'titles', [{text: "关于我们", route: '/about'}])
+				// 更新viewname为myview,viewtag为tag1(tag1可以替换成 '': 'default'; '-1': 所有viewname为myview)的实例，设置该实例的titles属性为[{text: "关于我们", route: '/about'}]
+				this.$updateInstance('myview', 'tag1', 'titles', [{text: "关于我们", route: '/about'}])
+				
+				// 调用viewname为myview,viewtag为tag1(tag1可以替换成 '': 'default'; '-1': 所有viewname为myview)的实例方法 myMethod
+				this.$updateInstance('myview', 'tag1', 'myMethod']) // 
 			}
 		}
 	}
@@ -124,7 +127,7 @@ common对象会默认存在每个vue实例的data属性中，并且和其他在d
 ```
 ### 重复的vue实例
 如果vue实例在页面中不存在多个或反复实例化的话，那该vue文件构建的实例都会使用一个默认的viewtag即：'default',指定该vue文件实例化的vue实例修改属性的话可以不用传viewtag,
-如果页面中有重复使用的vue实例或者页面反复构建的页面（比如一个商品信息页面：商品信息下面有相关商品，点击相关商品又跳转到商品信息）,必须为实例指定viewtag来区分同一个vue对象的不同使用地方，区分了不同使用地方的vue实例才能被正确的缓存和指定修改，VueData在定义的时候就给每一个vue对象新增了**props**属性**viewtag**，
+如果页面中有重复使用的vue实例或者页面反复构建的页面（比如一个商品信息页面：商品信息下面有相关商品，点击相关商品又跳转到商品信息）,必须为实例指定viewtag（VueData在定义的时候就给每一个vue对象新增了**props**属性**viewtag**）来区分同一个vue文件构造的不同实例，
 ```
 <template>
 	<div>
@@ -161,9 +164,11 @@ common对象会默认存在每个vue实例的data属性中，并且和其他在d
 ```
 此时，因为有多个改vue文件创建的vue实例，所以如果指定该vue文件生成的vue实例的属性进行修改的话，需要指定viewtag,如果viewtag传-1则会改动所有该vue文件模板创建出来的实例。
 ```
-this.$updateView('myview', 'tag2', [{text: "123", route: '/sdasg'}])
-this.$updateView('myview', '-1', [{text: "123", route: '/sdasg'}])
+this.$updateInstance('myview', 'tag2', [{text: "123", route: '/sdasg'}])
+this.$updateInstance('myview', '-1', [{text: "123", route: '/sdasg'}])
 ```
-如果传-1的话**只会修改当前已经存在的vue实例的data属性**
-如果传入的是具体的tag的话，
-若指定tag对应的的vue实例在页面中是未销毁状态就会立即更新其data属性，否则会等待下次实例创建时才更新其data属性
+### 更新属性，viewtag变量传值
+
+-1: **修改当前存在未被销毁的viewname为指定值的实例的data属性**
+''或者'default': **修改viewname为指定值viewtag为default的实例的data属性，若该vue实例还未创建就等到创建时赋值**
+其他: **修改viewname和viewtag为指定值的实例的data属性，若该vue实例还未创建就等到创建时赋值**
