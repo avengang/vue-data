@@ -42,6 +42,7 @@ Vue.use(vuedata)
 </style>
 ```
 当然，如果确定为每个vue文件都添加vue-data功能的话最好结合专门为vue-data写的**vue-data-loader**来使用，结合vue-data-loader之后，所有vue文件将不会和普通vue文件有任何区别：
+[vue-data-loader的使用方式](https://github.com/avengang/vue-data-loader/tree/master)
 ### $vuedataDo()
 $vuedataDo()为vue-data的唯一暴露方法，该方法可以修改“全局属性”、修改指定实例的属性和调用指定实例的方法。
 ```
@@ -74,7 +75,6 @@ $vuedataDo()为vue-data的唯一暴露方法，该方法可以修改“全局属
 <style>
 </style>
 ```
-[vue-data-loader的使用方式](https://github.com/avengang/vue-data-loader/tree/master)
 ### viewtag
 viewtag是为了处理同一个vue文件创建的多个vue实例导致的无法精确指定某个实例的问题。VueData在定义的时候就给每一个vue对象新增了**props**属性**viewtag**
 正因为如此，viewtag才必须在同一个viewname下具有唯一性，如果不指定，viewtag的值默认为default。
