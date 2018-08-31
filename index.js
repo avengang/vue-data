@@ -154,6 +154,8 @@ var VueData = function(config) {
 	var oldBeforeDestroy = config.beforeDestroy
 	config.beforeDestroy = function() {
 		oldBeforeDestroy && oldBeforeDestroy.bind(this)()
+		var viewtag = this._props.viewtag || 'default'
+		name_tags[viewname][viewtag] = false
 		for(var n=0,nn=_vms.length;n<nn;n++) {
 			if(_vms[n] === this) {
 				_vms.splice(n, 1)
@@ -161,7 +163,6 @@ var VueData = function(config) {
 			}
 		}
 		if(this.cache) {
-			var viewtag = this._props.viewtag || 'default'
 			_viewDatas[this._viewname][viewtag] = util.$deepCopy(this._data)
 		} else {
 			_viewDatas[this._viewname][viewtag] = {}
