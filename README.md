@@ -47,7 +47,11 @@ vue-data会在window对象中定义一个全局对象：VueData。
 结合vue-data-loader之后，像编写普通vue文件一样了：
 [vue-data-loader的使用方式](https://github.com/avengang/vue-data-loader/tree/master)
 ### $vuedataDo()
-$vuedataDo()为vue-data的唯一暴露方法，该方法可以修改“全局属性”、修改指定实例的属性和调用指定实例的方法。
+vue-data的唯一暴露方法。
+
+$vuedataDo(key, value):修改全局属性key的值为value；
+$vuedataDo(viewname, viewtag, method):调用指定viewname，viewtag的实例的method方法；
+$vuedataDo(viewname, viewtag, key, value):修改指定viewname，viewtag的实例的key属性值为value；
 ```
 <template>
 	<div>
