@@ -1,13 +1,12 @@
 /* eslint-disable */
 import util from './util.js'
-var _name_uuid_Map = {}
+var name_tags = {}
 var _viewDatas = {
 	common: {}
 }
 var _vms = []
 var wait2Update = {}
 function vuedataDo() {
-	//TODO:判断同一个viewname下viewtag是否重复
 	var viewname, viewtag, key, value, method, isMethod = false
 	if(arguments.length === 4) { // viewname, viewtag, key, value
 		viewname = arguments[0]
@@ -89,8 +88,8 @@ var VueData = function(config) {
 	var cache = config.cache
 	var uuid = util.$getUuid()
 	var viewname = config.viewname || uuid
-	if(_name_uuid_Map[config.viewname]) throw new Error('viewname不能重复, 已经存在viewname = ' + config.viewname + ' 的对象')
-	_name_uuid_Map[viewname] = uuid
+	if(name_tags[viewname]) throw new Error('viewname不能重复, 已经存在viewname = ' + config.viewname + ' 的对象')
+	name_tags[viewname] = {}
 	if(!config.data || !config.data()) {
 		config.data = function() {
 			return util.$deepCopy({
@@ -125,6 +124,8 @@ var VueData = function(config) {
 		this._viewname = uuid
 		this.cache = cache
 		var viewtag = this._props.viewtag || 'default'
+		if(name_tags[viewname][viewtag]) throw new Error('同一个viewname（' + viewname + '）下不能重复定义同一个viewtag:' + viewtag)
+		name_tags[viewname][viewtag] = true
 		if(this.cache) { // 如果需要缓存的话就要把该对象data加入字段
 			for(var k in _viewDatas[this._viewname][viewtag]) {
 				if(this[k] === undefined) this.$set(this.$data, k, null)
