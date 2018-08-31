@@ -21,7 +21,7 @@ vue-data会在window对象中定义一个全局对象：VueData。
 	<!-- 
 		每个vue实例中的common对象是相互独立的，可以通过调用$vuedataDo(key, value)的方式修改并同步到所有实例
 		 因为每个实例common对象相互独立，所以可以把common对象和对象中的属性当做普通data里面的属性使用，不如watch，computed等
-		 不建议在实例只通过this.common的形式对该对象进行修改和删除
+		 不建议在实例中通过this.common的形式对该对象进行修改和删除
 	-->
 		页面{{common.abc}}
 	</div>
@@ -146,4 +146,4 @@ this.$vuedataDo('detailview', '-1', products, [{title: "商品2", content: '内�
 ### 关于封装性
 因为可以在已经引入vue-data文件之后任何位置改变或者调用（某个或同一个viewname的多个实例的）方法，
 这似乎过于自由了，建议尽量把对自身vue文件data属性修改的方法放在该vue文件methods里面，再由外部调用，
-尽量不要vue文件的封装性。
+尽量不要破坏vue文件的封装性。
