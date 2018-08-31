@@ -12,7 +12,8 @@ import vuedata from 'vue-data'
 Vue.use(vuedata)
 ```
 ### vue实例构建
-1.vue-data会在window对象中定义一个全局对象：VueData,如果vue文件需要使用vue-data的功能就必须要通过VueData的方式生成对象来构建vue实例：
+vue-data会在window对象中定义一个全局对象：VueData。
+如果vue文件需要使用vue-data的功能就必须要通过VueData的方式生成对象来构建vue实例。
 ```
 <template>
 	<div>
@@ -41,7 +42,8 @@ Vue.use(vuedata)
 <style>
 </style>
 ```
-当然，如果确定为每个vue文件都添加vue-data功能的话最好结合专门为vue-data写的**vue-data-loader**来使用，结合vue-data-loader之后，所有vue文件将不会和普通vue文件有任何区别：
+当然，如果确定为每个vue文件都添加vue-data功能的话最好结合专门为vue-data写的**vue-data-loader**来使用，
+结合vue-data-loader之后，像编写普通vue文件一样了：
 [vue-data-loader的使用方式](https://github.com/avengang/vue-data-loader/tree/master)
 ### $vuedataDo()
 $vuedataDo()为vue-data的唯一暴露方法，该方法可以修改“全局属性”、修改指定实例的属性和调用指定实例的方法。
@@ -62,11 +64,13 @@ $vuedataDo()为vue-data的唯一暴露方法，该方法可以修改“全局属
 			//'abc'同样的可以替换成数组或者对象，因为内部实现用到了Vue.set
 			this.$vuedataDo('testCommon', 'abc')
 			
-			// 设置viewname为myview,viewtag为tag1(tag1可以替换成 '': 'default'; '-1': 所有viewname为myview)的实例的titles属性为[{text: "关于我们", route: '/about'}]
+			// 设置viewname为myview,viewtag为的实例的titles属性为[{text: "关于我们", route: '/about'}]
+			// tag1(tag1可以替换成 '': 'default'; '-1': 所有viewname为myview)
 			//tag可以为'','-1',其他
 			this.$vuedataDo('myview', 'tag1', 'titles', [{text: "关于我们", route: '/about'}])
 			
-			// 调用viewname为myview,viewtag为tag1(tag1可以替换成 '': 'default'; '-1': 所有viewname为myview)的实例方法 myMethod
+			// 调用viewname为myview,viewtag为tag1的实例方法 myMethod
+			// tag1(tag1可以替换成 '': 'default'; '-1': 所有viewname为myview)
 			this.$vuedataDo('myview', 'tag1', 'myMethod']) // 
 		}
 	}
@@ -76,7 +80,8 @@ $vuedataDo()为vue-data的唯一暴露方法，该方法可以修改“全局属
 </style>
 ```
 ### viewtag
-viewtag是为了处理同一个vue文件创建的多个vue实例导致的无法精确指定某个实例的问题。VueData在定义的时候就给每一个vue对象新增了**props**属性**viewtag**
+viewtag是为了处理同一个vue文件创建的多个vue实例导致的无法精确指定某个实例的问题。
+VueData在定义的时候就给每一个vue对象新增了**props**属性**viewtag**
 正因为如此，viewtag才必须在同一个viewname下具有唯一性，如果不指定，viewtag的值默认为default。
 
 viewtag变量传值
@@ -84,7 +89,9 @@ viewtag变量传值
 ''或者'default': **修改viewname为指定值viewtag为default的实例的data属性，若该vue实例还未创建就等到创建时赋值**
 其他: **修改viewname和viewtag为指定值的实例的data属性，若该vue实例还未创建就等到创建时赋值**
 
-如果页面中有重复使用的vue实例或者页面反复构建的页面（比如：一个商品信息页面：商品信息下面有相关商品，点击相关商品又跳转到商品信息）,必须为实例指定viewtag来区分同一个vue文件构造的不同实例，
+如果页面中有重复使用的vue实例或者页面反复构建的页面
+比如，一个商品信息页面：商品信息下面有相关商品，点击相关商品又跳转到商品信息，
+必须为实例指定viewtag来区分同一个vue文件构造的不同实例.
 ```
 <template>
 	<div>
@@ -122,7 +129,8 @@ viewtag变量传值
 	}
 </script>
 ```
-此时，因为有多个改vue文件创建的vue实例，所以如果指定该vue文件生成的vue实例的属性进行修改的话，需要指定viewtag,如果viewtag传-1则会改动所有该vue文件模板创建出来的实例。
+此时，因为有多个改vue文件创建的vue实例，所以如果指定该vue文件生成的vue实例的属性进行修改的话，
+需要指定viewtag,如果viewtag传-1则会改动所有该vue文件模板创建出来的实例。
 ```
 this.$vuedataDo('myview', 'myview1', 'titles', [{text: "123", route: '/sdasg'}])
 this.$vuedataDo('myview', '-1', 'titles', [{text: "123", route: '/sdasg'}])
@@ -131,5 +139,6 @@ this.$vuedataDo('detailview', 'tag1', products, [{title: "商品1", content: '�
 this.$vuedataDo('detailview', '-1', products, [{title: "商品2", content: '内容2'}])
 ```
 ### 非vue文件中使用$vuedataDo
-在非vue文件中同样可以使用$vuedataDo,因为VueData对象放到了window上，所以可以在任意js文件中通过VueData.$vuedataDo的形式调用该方法。
+在非vue文件中同样可以使用$vuedataDo,因为VueData对象放到了window上，
+所以可以在任意js文件中通过VueData.$vuedataDo的形式调用该方法。
 比如远端服务器数据请求的方法得到数据之后，或者其他第三方js文件中想改变vue对象，调用对象方法和common数据的时候。
