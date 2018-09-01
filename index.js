@@ -91,7 +91,7 @@ var VueData = function(config) {
 	if(name_tags[viewname]) throw new Error('viewname不能重复, 已经存在viewname = ' + config.viewname + ' 的对象')
 	name_tags[viewname] = {}
 	var dataReturn = null
-	if(config.data && Object.propotype.toString.call(config.data) === "[object Function]") {
+	if(config.data && Object.prototype.toString.call(config.data) === "[object Function]") {
 		try{
 			dataReturn = config.data()
 		}catch(e){
