@@ -52,9 +52,9 @@ vue-data会在window对象中定义一个全局对象：VueData。
 
 [vue-data-loader的使用方式](https://github.com/avengang/vue-data-loader/tree/master)  
 
-**注意**：在data方法的return对象属性的值不允许出现this,因为此时还未创建vue实例对象，  
+**注意**：在data方法的return对象属性的值不允许出现第三方插件给vue原型赋值的对象和方法,因为此时还未创建vue实例对象，  
 
-所以调用this对象的值时会报错，比如：  
+所以调用this对象的值时会报错，比如：vue-i18n,vue-router等：  
 
 ```
 <script>
@@ -62,8 +62,13 @@ vue-data会在window对象中定义一个全局对象：VueData。
     cache: true,
     viewname: 'myview',
     data() {
-      viewTitle: this.$route.params.type // 错误，因为此时还未创建vue实例对象
+      viewTitle: this.$route.params.type // 错误（vue-router）
+			name: this.$t('name'), // 错误（vue-i18n 国际化）
     },
+		created() {
+			this.viewTitle = this.$route.params.type // 正确，给viewTitle赋值
+			this.name = this.$t('name') // 正确，给name赋值
+		},
     methods: {
     }
   })
