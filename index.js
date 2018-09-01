@@ -95,7 +95,8 @@ var VueData = function(config) {
 		try{
 			dataReturn = config.data()
 		}catch(e){
-			console.error('使用VueData构造方法时，data方法返回的对象中不允许使用this的属性，因为此时对象还未构造中，建议在created方法中给变量赋值。')
+			console.warn('VueData构造方法中data方法返回的对象中不允许使用this的属性，因为此时对象还未构造中，建议在created方法中给变量赋值。')
+			console.error(e)
 		}
 	}
 	if(!config.data || !config.data()) {
