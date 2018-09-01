@@ -59,12 +59,10 @@ vue-data会在window对象中定义一个全局对象：VueData。
 ```
 <script>
   export default new window.VueData({
-    cache: true, // 是否缓存,表示该VueData对象是需要缓存的，那改vue实例在销毁前将会把data对象缓存起来，
-                 //等待下次create该对象的时候直接将缓存data值赋值给新的vue对象。
-    viewname: 'myview', //vuedata实例名称，是为了指定修改数据和指定调用方法的时候定位到具体实例，
-                        //如果不指定该属性，该属性为'default'
+    cache: true,
+    viewname: 'myview',
     data() {
-			viewTitle: this.$route.params.type // 错误，因为此时还未创建vue实例对象
+      viewTitle: this.$route.params.type // 错误，因为此时还未创建vue实例对象
     },
     methods: {
     }
