@@ -99,14 +99,14 @@ var VueData = function(config) {
 			console.error(e)
 		}
 	}
-	if(!config.data || !config.data()) {
+	if(!config.data || !dataReturn) {
 		config.data = function() {
 			return util.$deepCopy({
 				common: {}
 			})
 		}
 	} else {
-		var d = config.data()
+		var d = dataReturn
 		d.common = {}
 		config.data = function() {
 			return util.$deepCopy(d)
