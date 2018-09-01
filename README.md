@@ -50,7 +50,27 @@ vue-data会在window对象中定义一个全局对象：VueData。
 
 结合vue-data-loader之后，像编写普通vue文件一样了：  
 
-[vue-data-loader的使用方式](https://github.com/avengang/vue-data-loader/tree/master)
+[vue-data-loader的使用方式](https://github.com/avengang/vue-data-loader/tree/master)  
+
+**注意**：在data方法的return对象属性的值不允许出现this,因为此时还未创建vue实例对象，  
+
+所以调用this对象的值时会报错，比如：  
+
+```
+<script>
+  export default new window.VueData({
+    cache: true, // 是否缓存,表示该VueData对象是需要缓存的，那改vue实例在销毁前将会把data对象缓存起来，
+                 //等待下次create该对象的时候直接将缓存data值赋值给新的vue对象。
+    viewname: 'myview', //vuedata实例名称，是为了指定修改数据和指定调用方法的时候定位到具体实例，
+                        //如果不指定该属性，该属性为'default'
+    data() {
+			viewTitle: this.$route.params.type // 错误，因为此时还未创建vue实例对象
+    },
+    methods: {
+    }
+  })
+</script>
+```
 ### $vuedataDo()
 vue-data的唯一暴露方法。  
 
