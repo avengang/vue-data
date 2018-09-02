@@ -90,6 +90,7 @@ var VueData = function(config) {
   var viewname = config.viewname || uuid
   if(name_tags[viewname]) throw new Error('viewname不能重复, 已经存在viewname = ' + config.viewname + ' 的对象')
   name_tags[viewname] = {}
+	_viewDatas[uuid] = {}
   var dataReturn = null
   if(config.data && Object.prototype.toString.call(config.data) === "[object Function]") {
     try{
@@ -147,12 +148,13 @@ var VueData = function(config) {
         if(this[k] === undefined) this.$set(this.$data, k, null)
       }
     }
-    if(!this.$$cache || (this.$$cache && !name_tags[viewname][viewtag])) oldBeforeMount && oldBeforeMount.bind(this)()
+    if(!this.$$cache || (this.$$cache && !_viewDatas[uuid][viewtag])) oldBeforeMount && oldBeforeMount.bind(this)()
   }
   var oldMounted = config.mounted
   config.mounted = function() {
     var viewtag = this._props.viewtag || 'default'
-    if(!this.$$cache || (this.$$cache && !name_tags[viewname][viewtag])) oldMounted && oldMounted.bind(this)()
+    if(!this.$$cache || (this.$$cache && !_viewDatas[uuid][viewtag])) oldMounted && oldMounted.bind(this)()
+		config.activated && config.activated.bind(this)()
     if(this.$$cache) { // 有指定该对象需要缓存的话就要在渲染完之后加入缓存内容
       var viewDatas = _viewDatas[uuid][viewtag]
       util.$set(viewDatas, this)
@@ -184,7 +186,6 @@ var VueData = function(config) {
       _viewDatas[uuid][viewtag] = null
     }
   }
-  _viewDatas[uuid] = {}
   return config
 }
 VueData.$vuedataDo = vuedataDo
