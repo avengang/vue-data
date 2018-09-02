@@ -63,11 +63,11 @@ vue-data会在window对象中定义一个全局对象：VueData。
     viewname: 'myview',
     data() {
       viewTitle: this.$route.params.type // 错误（vue-router）
-			name: this.$t('name'), // 错误（vue-i18n 国际化）
+      name: this.$t('name'), // 错误（vue-i18n 国际化）
     },
 		created() {
-			this.viewTitle = this.$route.params.type // 正确，给viewTitle赋值
-			this.name = this.$t('name') // 正确，给name赋值
+      this.viewTitle = this.$route.params.type // 正确，给viewTitle赋值
+      this.name = this.$t('name') // 正确，给name赋值
 		},
     methods: {
     }
