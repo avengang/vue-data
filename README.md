@@ -26,7 +26,7 @@ vue-data会在window对象中定义一个全局对象：VueData。
   <!-- 
     每个vue实例中的common对象是相互独立的，可以通过调用$vuedataDo(key, value)的方式修改并同步到所有实例
      因为每个实例common对象相互独立，所以可以把common对象和对象中的属性当做普通data里面的属性使用，
-		 比如watch，computed等。不建议在实例中通过this.common的形式对该对象进行修改和删除
+     比如watch，computed等。不建议在实例中通过this.common的形式对该对象进行修改和删除
   -->
     页面{{common.abc}}
   </div>
@@ -35,17 +35,17 @@ vue-data会在window对象中定义一个全局对象：VueData。
   export default new window.VueData({
     cache: true, // 是否缓存,表示该VueData对象是需要缓存的，那改vue实例在销毁前将会把data对象缓存起来，
                  //等待下次create该对象的时候直接将缓存data值赋值给新的vue对象。
-								 //缓存的页面created 和beforeMount、mounted方法在使用缓存页面的时候是不会调用的，
-								 //可以通过 activated（beforeMount之后，mounted之前）生命周期方法来执行激活逻辑
+                 //缓存的页面created 和beforeMount、mounted方法在使用缓存页面的时候是不会调用的，
+                 //可以通过 activated（beforeMount之后，mounted之前）生命周期方法来执行激活逻辑
     viewname: 'myview', //vuedata实例名称，是为了指定修改数据和指定调用方法的时候定位到具体实例，
                         //如果不指定该属性，该属性为'default'
     data() {
     },
     methods: {
     },
-		activated() { // 始终会调用，无论是否是缓存状态
-			// TODO
-		}
+    activated() { // 始终会调用，无论是否是缓存状态
+      // TODO
+    }
   })
 </script>
 <style>
@@ -70,10 +70,10 @@ vue-data会在window对象中定义一个全局对象：VueData。
       viewTitle: this.$route.params.type // 错误（vue-router）
       name: this.$t('name'), // 错误（vue-i18n 国际化）
     },
-		created() {
+    created() {
       this.viewTitle = this.$route.params.type // 正确，给viewTitle赋值
       this.name = this.$t('name') // 正确，给name赋值
-		},
+    },
     methods: {
     }
   })
