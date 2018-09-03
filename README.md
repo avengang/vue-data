@@ -84,7 +84,7 @@ vue-data的唯一暴露方法。
 
 $vuedataDo(key, value):修改全局属性key的值为value；  
 
-$vuedataDo(viewname, viewtag, method):调用指定viewname，viewtag的实例的method方法；  
+$vuedataDo(viewname, viewtag, method, param...):调用指定viewname，viewtag的实例的method方法,后面可跟不定个数个参数；  
 
 $vuedataDo(viewname, viewtag, key, value):修改指定viewname，viewtag的实例的key属性值为value；  
 

@@ -8,47 +8,44 @@ var _vms = []
 var wait2Update = {}
 function vuedataDo() {
   var viewname, viewtag, key, value, method, isMethod = false
-  if(arguments.length === 4) { // viewname, viewtag, key, value
-    viewname = arguments[0]
-    viewtag = arguments[1]
-    key = arguments[2]
-    value = arguments[3]
-  } else if(arguments.length === 3) { // viewname, viewtag, method
-    viewname = arguments[0]
-    viewtag = arguments[1]
-    method = arguments[2]
-    isMethod = true
+  viewname = arguments[0]
+  viewtag = arguments[1]
+  if(arguments.length < 2) {
+    console.log('传入参数：', arguments)
+    throw new Error('$vuedataDo参数个数必须大于2')
   } else if(arguments.length === 2) { // 更新全局属性
     updateCommonData(arguments[0], arguments[1])
     return
   } else {
-    console.log('传入参数：', arguments)
-    throw new Error('$vuedataDo参数个数不匹配，参数个数必须为3（viewname, viewtag, method）或者4个(viewname, viewtag, key, value)：')
-  }
-  viewtag = viewtag || 'default'
-  for(var n=0,nn=_vms.length;n<nn;n++) {
-    var vm = _vms[n]
-    var _viewtag = vm._props.viewtag || 'default'
-    if(vm.configviewname === viewname) {
-      if(+viewtag !== -1) {
-        if(_viewtag !== viewtag) {
-          continue
-        }
-        if(isMethod) {
-          vm[method] && vm[method]()
+    viewtag = viewtag || 'default'
+    for(var n=0,nn=_vms.length;n<nn;n++) {
+      var vm = _vms[n]
+      var _viewtag = vm._props.viewtag || 'default'
+      if(vm.configviewname === viewname) {
+        var arg2 = vm[arguments[2]]
+        var isMethod = Object.prototype.toString.call(arg2) === '[object Function]'
+        var params = util.$getArgMethodParam(arguments)
+        if(+viewtag !== -1) {
+          if(_viewtag !== viewtag) {
+            continue
+          }
+          if(isMethod) {
+            arg2 && arg2.apply(vm, params)
+          } else {
+            util.$setSingle(arguments[2], arguments[3], vm)
+          }
+          return
         } else {
-          util.$setSingle(key, value, vm)
-        }
-        return
-      } else {
-        if(isMethod) {
-          vm[method] && vm[method]()
-        } else {
-          util.$setSingle(key, value, vm)
+          if(isMethod) {
+            arg2 && arg2.apply(vm, params)
+          } else {
+            util.$setSingle(arguments[2], arguments[3], vm)
+          }
         }
       }
     }
   }
+  
   if(viewtag !== -1 && !isMethod) {
     if(!wait2Update[viewname])
       wait2Update[viewname] = {}
@@ -90,7 +87,7 @@ var VueData = function(config) {
   var viewname = config.viewname || uuid
   if(name_tags[viewname]) throw new Error('viewname不能重复, 已经存在viewname = ' + config.viewname + ' 的对象')
   name_tags[viewname] = {}
-	_viewDatas[uuid] = {}
+  _viewDatas[uuid] = {}
   var dataReturn = null
   if(config.data && Object.prototype.toString.call(config.data) === "[object Function]") {
     try{
@@ -154,7 +151,7 @@ var VueData = function(config) {
   config.mounted = function() {
     var viewtag = this._props.viewtag || 'default'
     if(!this.$$cache || (this.$$cache && !_viewDatas[uuid][viewtag])) oldMounted && oldMounted.bind(this)()
-		config.activated && config.activated.bind(this)()
+    config.activated && config.activated.bind(this)()
     if(this.$$cache) { // 有指定该对象需要缓存的话就要在渲染完之后加入缓存内容
       var viewDatas = _viewDatas[uuid][viewtag]
       util.$set(viewDatas, this)

@@ -82,6 +82,15 @@ var $getCache = function(vm) {
   }
   return false
 }
+var $getArgMethodParam = function(arg) {
+  var result = []
+  for(var i=0,ii=arg.length;i<ii;i++) {
+    if(i >= 3) {
+      result.push(arg[i])
+    }
+  }
+  return result
+}
 export default {
   $deepCopy,
   $getElLink,
@@ -89,5 +98,6 @@ export default {
   $set,
   $setSingle,
   $isUndefinedOrNull,
-  $getCache
+  $getCache,
+  $getArgMethodParam
 }
