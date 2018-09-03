@@ -37,6 +37,8 @@ vue-data会在window对象中定义一个全局对象：VueData。
                  //等待下次create该对象的时候直接将缓存data值赋值给新的vue对象。
                  //缓存的页面created 和beforeMount、mounted方法在使用缓存页面的时候是不会调用的，
                  //可以通过 activated（beforeMount之后，mounted之前）生命周期方法来执行激活逻辑
+                 //如果未设置或者设置为false，但是父组件链中如果是设置了true的话值也为true，
+                 //比如，页面设置了缓存，那页面中使用的自定义vue组件也是缓存的
     viewname: 'myview', //vuedata实例名称，是为了指定修改数据和指定调用方法的时候定位到具体实例，
                         //如果不指定该属性，该属性为'default'
     data() {

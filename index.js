@@ -55,7 +55,7 @@ function vuedataDo() {
 }
 function updateCommonDataHelper(vm, key, value) {
   if(!vm.common) {
-    return //其他未从VueData继承的页面
+    return //其他非VueData对象
   }
   if(Object.prototype.toString.call(value) === '[object Array]') {
     if(vm.common[key] === value) return
