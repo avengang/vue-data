@@ -7,9 +7,7 @@ var _viewDatas = {
 var _vms = []
 var wait2Update = {}
 function vuedataDo() {
-  var viewname, viewtag, key, value, method, isMethod = false
-  viewname = arguments[0]
-  viewtag = arguments[1]
+  console.log(arguments)
   if(arguments.length < 2) {
     console.log('传入参数：', arguments)
     throw new Error('$vuedataDo参数个数必须大于2')
@@ -17,6 +15,8 @@ function vuedataDo() {
     updateCommonData(arguments[0], arguments[1])
     return
   } else {
+    var viewname = arguments[0]
+    var viewtag = arguments[1]
     viewtag = viewtag || 'default'
     for(var n=0,nn=_vms.length;n<nn;n++) {
       var vm = _vms[n]
@@ -24,6 +24,7 @@ function vuedataDo() {
       if(vm.configviewname === viewname) {
         var arg2 = vm[arguments[2]]
         var isMethod = Object.prototype.toString.call(arg2) === '[object Function]'
+        console.log(isMethod, arg2)
         var params = util.$getArgMethodParam(arguments)
         if(+viewtag !== -1) {
           if(_viewtag !== viewtag) {
@@ -51,7 +52,7 @@ function vuedataDo() {
       wait2Update[viewname] = {}
     if(!wait2Update[viewname][viewtag])
       wait2Update[viewname][viewtag] = {}
-    wait2Update[viewname][viewtag][key] = util.$deepCopy(value)
+    wait2Update[viewname][viewtag][arguments[2]] = util.$deepCopy(arguments[3])
   }
 }
 function updateCommonDataHelper(vm, key, value) {
