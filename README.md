@@ -204,7 +204,7 @@ this.$vuedataDo('detailview', '-1', products, [{title: "商品2", content: '内�
 //第三方js文件
 VueData.$vuedataDo('abc', '123') // 修改全局属性abc的值为123
 VueData.$vuedataDo('myview', '', 'title', 'hello') // 修改属性
-VueData.$vuedataDo('myview', 'testMethod') // 调用方法
+VueData.$vuedataDo('myview', '', 'testMethod') // 调用方法
 ```
 ### 关于封装性
 因为可以在已经引入vue-data文件之后任何位置改变或者调用（某个或同一个viewname的多个实例的）方法，  
