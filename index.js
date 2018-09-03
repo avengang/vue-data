@@ -7,7 +7,6 @@ var _viewDatas = {
 var _vms = []
 var wait2Update = {}
 function vuedataDo() {
-  console.log(arguments)
   if(arguments.length < 2) {
     console.log('传入参数：', arguments)
     throw new Error('$vuedataDo参数个数必须大于2')
@@ -24,7 +23,6 @@ function vuedataDo() {
       if(vm.configviewname === viewname) {
         var arg2 = vm[arguments[2]]
         var isMethod = Object.prototype.toString.call(arg2) === '[object Function]'
-        console.log(isMethod, arg2)
         var params = util.$getArgMethodParam(arguments)
         if(+viewtag !== -1) {
           if(_viewtag !== viewtag) {
