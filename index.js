@@ -150,7 +150,6 @@ var VueData = function(config) {
   config.mounted = function() {
     var viewtag = this._props.viewtag || 'default'
     if(!this.$$cache || (this.$$cache && !_viewDatas[uuid][viewtag])) oldMounted && oldMounted.bind(this)()
-    config.activated && config.activated.bind(this)()
     if(this.$$cache) { // 有指定该对象需要缓存的话就要在渲染完之后加入缓存内容
       var viewDatas = _viewDatas[uuid][viewtag]
       util.$set(viewDatas, this)
@@ -164,6 +163,7 @@ var VueData = function(config) {
     for(var commonk in _viewDatas.common) {
       updateCommonDataHelper(this, commonk, _viewDatas.common[commonk])
     }
+    config.activated && config.activated.bind(this)()
   }
   var oldBeforeDestroy = config.beforeDestroy
   config.beforeDestroy = function() {
