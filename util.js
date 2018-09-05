@@ -62,6 +62,10 @@ var $setSingle = function(k, value, dist) {
   }
   if(dist[k] === value) return // 没变化，不更新
   if(Object.prototype.toString.call(value) === '[object Array]') {
+    if(value.length === 0) {
+      dist[k] = []
+      return
+    }
     for(var j=0;j<value.length;j++) {
       dist.$set(dist[k], j, $deepCopy(value[j]))
     }

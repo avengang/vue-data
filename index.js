@@ -11,8 +11,17 @@ function vuedataDo() {
     console.log('传入参数：', arguments)
     throw new Error('$vuedataDo参数个数必须大于2')
   } else if(arguments.length === 2) { // 更新全局属性
-    updateCommonData(arguments[0], arguments[1])
-    return
+    var arg1 = arguments[0]
+    var arg2 = arguments[1]
+    for(var n=0,nn=_vms.length;n<nn;n++) {
+      var vm = _vms[n]
+      var _viewtag = vm._props.viewtag || 'default'
+      if(vm.configviewname === arg1 && _viewtag === arg2) {
+        return vm
+      }
+    }
+    updateCommonData(arg1, arg2)
+    return null
   } else {
     var viewname = arguments[0]
     var viewtag = arguments[1]

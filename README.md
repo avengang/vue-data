@@ -1,7 +1,7 @@
 # vue-data
 vue-data是一个vue实例对象数据的管理工具。  
 
-可以进行**全局数据共享**、**数据缓存**、**指定实例的数据更新和方法调用**。  
+可以进行**全局数据共享**、**数据缓存**、**获取实例**、**指定实例的数据更新和方法调用**。  
 
 使用非常简单，只暴露一个api函数：$vuedataDo，学习成本远远低于同类插件。  
 
@@ -84,7 +84,8 @@ vue-data会在window对象中定义一个全局对象：VueData。
 ### $vuedataDo()
 vue-data的唯一暴露方法。  
 
-$vuedataDo(key, value):修改全局属性key的值为value；  
+$vuedataDo(viewname|key, viewtag|value):把第一、二个参数当做viewname，viewtag尝试获取指定实例并返回，  
+	如果获取不到就把第一、二个参数当做key，value来修改全局属性的值；  
 
 $vuedataDo(viewname, viewtag, method, param...):调用指定viewname，viewtag的实例的method方法,后面可跟不定个数个参数；  
 
