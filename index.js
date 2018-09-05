@@ -152,7 +152,9 @@ var VueData = function(config) {
   config.beforeMount = function() {
     this.configviewname = viewname
     var viewtag = this._props.viewtag || 'default'
-    if(!this.$$cache && name_tags[viewname][viewtag]) throw new Error('同一个viewname（' + viewname + '）下不能重复定义同一个viewtag:' + viewtag)
+    if(!this.$$cache && name_tags[viewname][viewtag]) {
+      console.warn('同一个viewname（' + viewname + '）下定义了同一个viewtag:' + viewtag + '（如果是热更新引起的话请忽略。）')
+    }
     name_tags[viewname][viewtag] = true
     if(this.$$cache) { // 如果需要缓存的话就要把该对象data加入字段
       for(var k in _viewDatas[uuid][viewtag]) {
