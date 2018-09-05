@@ -44,13 +44,17 @@ function vuedataDo() {
       }
     }
   }
-  
-  if(viewtag !== -1 && !isMethod) {
+  if(viewtag !== -1) {
     if(!wait2Update[viewname])
       wait2Update[viewname] = {}
     if(!wait2Update[viewname][viewtag])
       wait2Update[viewname][viewtag] = {}
-    wait2Update[viewname][viewtag][arguments[2]] = util.$deepCopy(arguments[3])
+    if(arguments.length === 4) {
+      wait2Update[viewname][viewtag][arguments[2]] = util.$deepCopy(arguments[3])
+    } else if(arguments.length > 4) {
+      var params = util.$getArgMethodParam(arguments)
+      wait2Update[viewname][viewtag][arguments[2]] = params
+    }
   }
 }
 function updateCommonDataHelper(vm, key, value) {

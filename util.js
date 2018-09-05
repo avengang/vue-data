@@ -53,6 +53,13 @@ var $getUuid = function() {
   return uuid;
 }
 var $setSingle = function(k, value, dist) {
+  if(Object.prototype.toString.call(dist[k]) === '[object Function]') {
+    if(Object.prototype.toString.call(value) === '[object Array]') {
+      dist[k].apply(dist, value)
+    } else {
+      dist[k].call(dist, value)
+    }
+  }
   if(dist[k] === value) return // 没变化，不更新
   if(Object.prototype.toString.call(value) === '[object Array]') {
     for(var j=0;j<value.length;j++) {

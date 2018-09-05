@@ -130,13 +130,13 @@ VueData在定义的时候就给每一个vue对象新增了**props**属性**viewt
 正因为如此，viewtag才必须在同一个viewname下具有唯一性，如果不指定，viewtag的值默认为default。  
 
 
-viewtag变量传值  
+viewtag变量传值或者方法调用  
 
--1: **修改当前存在未被销毁的viewname为指定值的实例的data属性**  
+-1: **修改当前存在未被销毁的viewname为指定值的实例的data属性或者调用其方法**  
 
-''或者'default': **修改viewname为指定值viewtag为default的实例的data属性，若该vue实例还未创建就等到创建时赋值**  
+''或者'default': **修改viewname为指定值viewtag为default的实例的data属性或调用其方法，若该vue实例还未创建就等到创建时赋值或方法调用**  
 
-其他: **修改viewname和viewtag为指定值的实例的data属性，若该vue实例还未创建就等到创建时赋值**  
+其他: **修改viewname和viewtag为指定值的实例的data属性或调用其方法，若该vue实例还未创建就等到创建时赋值或方法调用**  
 
 
 如果页面中有重复使用的vue实例或者页面反复构建的页面  
