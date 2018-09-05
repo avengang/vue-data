@@ -118,9 +118,11 @@ var VueData = function(config) {
     config.props.push('viewtag')
   } else {
     if(Object.prototype.toString.call(config.props) === '[object Array]') { // 数组
-      config.props.push('viewtag')
+      if(config.props.indexOf('viewtag') === -1)
+        config.props.push('viewtag')
     } else { // 对象
-      config.props.viewtag = String
+      if(config.props.viewtag === undefined)
+        config.props.viewtag = String
     }
   }
   var oldBeforeCreate = config.beforeCreate
