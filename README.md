@@ -83,16 +83,16 @@ vue-data会在window对象中定义一个全局对象：VueData。
 ```
 ### $vuedataDo()
 vue-data的唯一暴露方法。  
+
 $vuedataDo(key):返回全局属性key的值  
 
-$vuedataDo(viewname|key, viewtag|value): 通过viewname，viewtag获取实例对象，  
-                                         设置全局属性key值为value；  
+$vuedataDo(viewname|key, viewtag|value): 通过viewname，viewtag获取实例对象 或者 设置全局属性key值为value；  
 
 $vuedataDo(viewname, viewtag, method, param...):调用指定viewname，viewtag的实例的method方法,后面可跟不定个数个参数；  
 
 $vuedataDo(viewname, viewtag, key, value):修改指定viewname，viewtag的实例的key属性值为value；  
 
-其中，key可以指定到具体的数组下标或者对象的具体属性：
+其中，**key**可以指定到具体的数组**下标**或者对象的**属性**：
 $vuedataDo('commonArr[0]', value0)
 $vuedataDo('commonObj[key1]', value1)
 $vuedataDo('myheader', '', 'dropMenuArr[0]', menuValue0)
@@ -101,11 +101,17 @@ $vuedataDo('myheader', '', 'logo[url]', url)
 **返回值使用场景**  
 var commonObj = this.$vuedataDo('commonObj') // 获取全局对象的commonObj值，  
                                              // this为vue实例，也可以替换为全局对象：VueData  
+																						 
 var commonObj = this.$vuedataDo('commonObj[key]') // 获取全局对象的commonObj的key属性对应的值，  
-var headerMenu = $vuedataDo('myheader', '', 'dropMenuArr') // 获取头部菜单对象
-var headerMenu0 = $vuedataDo('myheader', '', 'dropMenuArr[0]')// 获取头部菜单对象的第0个元素
-var logo = $vuedataDo('myheader', '', 'logo')// 获取头部logo对象
-var logoUrl = $vuedataDo('myheader', '', 'logo[url]')// 获取头部logo对象的url属性
+
+var headerMenu = $vuedataDo('myheader', '', 'dropMenuArr') // 获取头部菜单对象  
+
+var headerMenu0 = $vuedataDo('myheader', '', 'dropMenuArr[0]')// 获取头部菜单对象的第0个元素  
+
+var logo = $vuedataDo('myheader', '', 'logo')// 获取头部logo对象  
+
+var logoUrl = $vuedataDo('myheader', '', 'logo[url]')// 获取头部logo对象的url属性  
+
 ```
 <template>
   <div>
