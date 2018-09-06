@@ -100,17 +100,16 @@ $vuedataDo('myheader', '', 'logo[url]', url)
 
 **返回值使用场景**  
 var commonObj = this.$vuedataDo('commonObj') // 获取全局对象的commonObj值，  
-                                             // this为vue实例，也可以替换为全局对象：VueData  
 																						 
 var commonObj = this.$vuedataDo('commonObj[key]') // 获取全局对象的commonObj的key属性对应的值，  
 
-var headerMenu = $vuedataDo('myheader', '', 'dropMenuArr') // 获取头部菜单对象  
+var headerMenu = this.$vuedataDo('myheader', '', 'dropMenuArr') // 获取头部菜单对象  
 
-var headerMenu0 = $vuedataDo('myheader', '', 'dropMenuArr[0]')// 获取头部菜单对象的第0个元素  
+var headerMenu0 = this.$vuedataDo('myheader', '', 'dropMenuArr[0]')// 获取头部菜单对象的第0个元素  
 
-var logo = $vuedataDo('myheader', '', 'logo')// 获取头部logo对象  
+var logo = this.$vuedataDo('myheader', '', 'logo')// 获取头部logo对象  
 
-var logoUrl = $vuedataDo('myheader', '', 'logo[url]')// 获取头部logo对象的url属性  
+var logoUrl = this.$vuedataDo('myheader', '', 'logo[url]')// 获取头部logo对象的url属性  
 
 ```
 <template>
