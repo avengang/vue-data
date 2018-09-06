@@ -47,7 +47,6 @@ function vuedataDo() {
         var arg2 = vm[arguments2]
         var isMethod = Object.prototype.toString.call(arg2) === '[object Function]'
         var params = util.$getArgMethodParam(arguments)
-        console.log(_viewtag, viewtag)
         if(+viewtag !== -1) {
           if(_viewtag !== viewtag) {
             continue
