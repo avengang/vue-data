@@ -7,9 +7,22 @@ var _viewDatas = {
 var _vms = []
 var wait2Update = {}
 function vuedataDo() {
-  if(arguments.length < 2) {
+  if(arguments.length === 0) {
     console.log('传入参数：', arguments)
     throw new Error('$vuedataDo参数个数必须大于2')
+  } else if(arguments.length === 1) { // 获取全局属性
+    var arguments0 = arguments[0]
+    var indexOrKey = ''
+    if(arguments0.indexOf('[') !== -1) {
+      var tempArr = arguments0.split('[')
+      arguments0 = tempArr[0]
+      indexOrKey = tempArr[1].split(']')[0]
+    }
+    if(indexOrKey) {
+      return _viewDatas.common[arguments0][indexOrKey]
+    } else {
+      return _viewDatas.common[arguments0]
+    }
   } else if(arguments.length === 2) { // 更新全局属性
     var arg1 = arguments[0]
     var arg2 = arguments[1]
@@ -30,9 +43,11 @@ function vuedataDo() {
       var vm = _vms[n]
       var _viewtag = vm._props.viewtag || 'default'
       if(vm.configviewname === viewname) {
-        var arg2 = vm[arguments[2]]
+        var arguments2 = arguments[2]
+        var arg2 = vm[arguments2]
         var isMethod = Object.prototype.toString.call(arg2) === '[object Function]'
         var params = util.$getArgMethodParam(arguments)
+        console.log(_viewtag, viewtag)
         if(+viewtag !== -1) {
           if(_viewtag !== viewtag) {
             continue
@@ -40,14 +55,14 @@ function vuedataDo() {
           if(isMethod) {
             arg2 && arg2.apply(vm, params)
           } else {
-            util.$setSingle(arguments[2], arguments[3], vm)
+            util.$setSingle(arguments2, arguments[3], vm)
           }
           return
         } else {
           if(isMethod) {
             arg2 && arg2.apply(vm, params)
           } else {
-            util.$setSingle(arguments[2], arguments[3], vm)
+            util.$setSingle(arguments2, arguments[3], vm)
           }
         }
       }
@@ -65,25 +80,43 @@ function vuedataDo() {
       wait2Update[viewname][viewtag][arguments[2]] = params
     }
   }
+  return null
 }
 function updateCommonDataHelper(vm, key, value) {
   if(!vm.common) {
     return //其他非VueData对象
   }
-  if(Object.prototype.toString.call(value) === '[object Array]') {
-    if(vm.common[key] === value) return
-    for(var j=0;j<value.length;j++) {
-      vm.$set(vm.common[key], j, util.$deepCopy(value[j]))
-    }
-  } else if(Object.prototype.toString.call(value) === '[object object]') {
-    if(vm.common[key] === value) return
-    for(var _key in value) {
-      vm.$set(vm.common[key], _key, value[_key])
+  var indexOrKey = ''
+  if(key.indexOf('[') !== -1) {
+    var tempArr = key.split('[')
+    key = tempArr[0]
+    indexOrKey = tempArr[1].split(']')[0]
+  }
+  if(indexOrKey) {
+    if(Object.prototype.toString.call(vm.common[key]) === '[object Array]') {
+      if(vm.common[key][indexOrKey] === value) return
+      vm.$set(vm.common[key], indexOrKey, util.$deepCopy(value))
+    } else if(Object.prototype.toString.call(vm.common[key]) === '[object Object]') {
+      if(vm.common[key][indexOrKey] === value) return
+      vm.$set(vm.common[key], indexOrKey, util.$deepCopy(value))
+    } else {
+      throw new Error('非对象和非数组不允许按下标或字段设置值')
     }
   } else {
-    var obj = {}
-    obj[key] = value
-    vm.$set(vm.common, key, util.$deepCopy(value))
+    if(vm.common[key] === value) return // 没变化，不更新
+    if(Object.prototype.toString.call(vm.common[key]) === '[object Array]') {
+      vm.common[key] = []
+      for(var j=0;j<value.length;j++) {
+        vm.$set(vm.common[key], j, util.$deepCopy(value[j]))
+      }
+    } else if(Object.prototype.toString.call(vm.common[key]) === '[object Object]') {
+      vm.common[key] = {}
+      for(var _key in value) {
+        vm.$set(vm.common[key], _key, util.$deepCopy(value[_key]))
+      }
+    } else {
+      vm.$set(vm.common, key, util.$deepCopy(value))
+    }
   }
 }
 function updateCommonData(key, value) {
@@ -117,7 +150,7 @@ var VueData = function(config) {
     }
   } else {
     var d = dataReturn
-    d.common = {}
+    d.common = dataReturn.common || {}
     config.data = function() {
       return util.$deepCopy(d)
     }
@@ -165,6 +198,7 @@ var VueData = function(config) {
   }
   var oldMounted = config.mounted
   config.mounted = function() {
+    config.beforeCache && config.beforeCache.bind(this)()
     var viewtag = this._props.viewtag || 'default'
     if(!this.$$cache || (this.$$cache && !_viewDatas[uuid][viewtag])) oldMounted && oldMounted.bind(this)()
     if(this.$$cache) { // 有指定该对象需要缓存的话就要在渲染完之后加入缓存内容
@@ -180,7 +214,7 @@ var VueData = function(config) {
     for(var commonk in _viewDatas.common) {
       updateCommonDataHelper(this, commonk, _viewDatas.common[commonk])
     }
-    config.activated && config.activated.bind(this)()
+    config.cached && config.cached.bind(this)()
   }
   var oldBeforeDestroy = config.beforeDestroy
   config.beforeDestroy = function() {

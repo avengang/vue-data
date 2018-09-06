@@ -1,34 +1,23 @@
 /* eslint-disable */
-
 var $deepCopy = function (obj, cache = []) {
-
   function find (list, f) {
     return list.filter(f)[0]
   }
-
-  // just return if obj is immutable value
   if (obj === null || typeof obj !== 'object') {
     return obj
   }
-
-  // if obj is hit, it is in circular structure
   const hit = find(cache, c => c.original === obj)
   if (hit) {
     return hit.copy
   }
-
   const copy = Array.isArray(obj) ? [] : {}
-  // put the copy into cache at first
-  // because we want to refer it in recursive deepCopy
   cache.push({
     original: obj,
     copy
   })
-
   Object.keys(obj).forEach(key => {
     copy[key] = $deepCopy(obj[key], cache)
   })
-
   return copy
 }
 var $getElLink = function(el) {
@@ -39,7 +28,6 @@ var $getElLink = function(el) {
   }
   return result
 }
-
 var $getUuid = function() {
   var s = [];
   var hexDigits = "0123456789abcdef";
@@ -59,22 +47,39 @@ var $setSingle = function(k, value, dist) {
     } else {
       dist[k].call(dist, value)
     }
+    return
   }
-  if(dist[k] === value) return // 没变化，不更新
-  if(Object.prototype.toString.call(value) === '[object Array]') {
-    if(value.length === 0) {
-      dist[k] = []
-      return
-    }
-    for(var j=0;j<value.length;j++) {
-      dist.$set(dist[k], j, $deepCopy(value[j]))
-    }
-  } else if(Object.prototype.toString.call(value) === '[object object]') {
-    for(var _key in value) {
-      dist.$set(dist[k], _key, value[_key])
+  var indexOrKey = ''
+  if(k.indexOf('[') !== -1) {
+    var tempArr = k.split('[')
+    k = tempArr[0]
+    indexOrKey = tempArr[1].split(']')[0]
+  }
+  if(indexOrKey) {
+    if(Object.prototype.toString.call(dist[k]) === '[object Array]') {
+      if(dist[k][indexOrKey] === value) return // 没变化，不更新
+      dist.$set(dist[k], indexOrKey, $deepCopy(value))
+    } else if(Object.prototype.toString.call(dist[k]) === '[object Object]') {
+      if(dist[k][indexOrKey] === value) return // 没变化，不更新
+      dist.$set(dist[k], indexOrKey, $deepCopy(value))
+    } else {
+      throw new Error('非对象和非数组不允许按下标或字段设置值')
     }
   } else {
-    dist[k] = value
+    if(dist[k] === value) return // 没变化，不更新
+    if(Object.prototype.toString.call(dist[k]) === '[object Array]') {
+      dist[k] = []
+      for(var j=0;j<value.length;j++) {
+        dist.$set(dist[k], j, $deepCopy(value[j]))
+      }
+    } else if(Object.prototype.toString.call(dist[k]) === '[object Object]') {
+      dist[k] = {}
+      for(var _key in value) {
+        dist.$set(dist[k], _key, $deepCopy(value[_key]))
+      }
+    } else {
+      dist[k] = $deepCopy(value)
+    }
   }
 }
 var $set = function(src, dist) {
