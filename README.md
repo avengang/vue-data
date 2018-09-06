@@ -3,7 +3,7 @@ vue-data是一个vue实例对象数据的管理工具。
 
 可以进行**全局数据共享**、**数据缓存**、**获取实例**、**指定实例的数据更新和方法调用**。  
 
-使用非常简单，只暴露一个api函数：$vuedataDo，学习成本远远低于同类插件。  
+使用非常简单，只暴露一个api函数：$vuedataDo，增加了两个生命周期函数：beforeCache和cached  
 
 ## 安装
 ```
@@ -36,7 +36,7 @@ vue-data会在window对象中定义一个全局对象：VueData。
     cache: true, // 是否缓存,表示该VueData对象是需要缓存的，那改vue实例在销毁前将会把data对象缓存起来，
                  //等待下次create该对象的时候直接将缓存data值赋值给新的vue对象。
                  //缓存的页面created 和beforeMount、mounted方法在使用缓存页面的时候是不会调用的，
-                 //可以通过 beforeCache和cached生命周期方法来执行激活逻辑
+                 //可以通过 **beforeCache和cached**生命周期方法来执行激活逻辑
                  //如果未设置或者设置为false，但是父组件链中如果是设置了true的话值也为true，
                  //比如，页面设置了缓存，那页面中使用的自定义vue组件也是缓存的
     viewname: 'myview', //vuedata实例名称，是为了指定修改数据和指定调用方法的时候定位到具体实例，
