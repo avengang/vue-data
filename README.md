@@ -36,16 +36,19 @@ vue-data会在window对象中定义一个全局对象：VueData。
     cache: true, // 是否缓存,表示该VueData对象是需要缓存的，那改vue实例在销毁前将会把data对象缓存起来，
                  //等待下次create该对象的时候直接将缓存data值赋值给新的vue对象。
                  //缓存的页面created 和beforeMount、mounted方法在使用缓存页面的时候是不会调用的，
-                 //可以通过 **beforeCache和cached**生命周期方法来执行激活逻辑
+                 //可以通过  beforeCache  和  cached  生命周期方法来执行激活逻辑
                  //如果未设置或者设置为false，但是父组件链中如果是设置了true的话值也为true，
                  //比如，页面设置了缓存，那页面中使用的自定义vue组件也是缓存的
-    viewname: 'myview', //vuedata实例名称，是为了指定修改数据和指定调用方法的时候定位到具体实例，
-                        //如果不指定该属性，该属性为'default'
+    viewname: 'myview', //vuedata实例名称，是为了指定修改数据和指定调用方法的时候定位到具体实例
+                        
     data() {
     },
     methods: {
     },
-    activated() { // 始终会调用，无论是否是缓存状态
+    beforeCache() { // 始终会调用，无论是否是缓存状态
+      // TODO
+    },
+    cached() { // 始终会调用，无论是否是缓存状态
       // TODO
     }
   })
@@ -129,12 +132,9 @@ var logoUrl = this.$vuedataDo('myheader', '', 'logo[url]')// 获取头部logo对
       this.$vuedataDo('testCommon', 'abc')
       
       // 设置viewname为myview,viewtag为的实例的titles属性为[{text: "关于我们", route: '/about'}]
-      // tag1(tag1可以替换成 '': 'default'; '-1': 所有viewname为myview)
-      //tag可以为'','-1',其他
       this.$vuedataDo('myview', 'tag1', 'titles', [{text: "关于我们", route: '/about'}])
       
       // 调用viewname为myview,viewtag为tag1的实例方法 myMethod
-      // tag1(tag1可以替换成 '': 'default'; '-1': 所有viewname为myview)
       this.$vuedataDo('myview', 'tag1', 'myMethod']) // 
     }
   }
@@ -148,16 +148,15 @@ viewtag是为了处理同一个vue文件创建的多个vue实例导致的无法�
 
 VueData在定义的时候就给每一个vue对象新增了**props**属性**viewtag**  
 
-正因为如此，viewtag才必须在同一个viewname下具有唯一性，如果不指定，viewtag的值默认为default。  
+正因为如此，viewtag才必须在同一个viewname下具有唯一性，如果不指定，viewtag的值默认为最近一个VueData父实例的viewtag+"_"+viewname。  
 
 
 viewtag变量传值或者方法调用  
 
--1: **修改当前存在未被销毁的viewname为指定值的实例的data属性或者调用其方法**  
+if判定为false:  **修改当前存在未被销毁的viewname为指定值的所有实例的data属性或者调用其方法**  
+              **如果当前没有匹配的实例则等到 viewtag为默认值 的实例创建时赋值或方法调用**  
 
-''或者'default': **修改viewname为指定值viewtag为default的实例的data属性或调用其方法，若该vue实例还未创建就等到创建时赋值或方法调用**  
-
-其他: **修改viewname和viewtag为指定值的实例的data属性或调用其方法，若该vue实例还未创建就等到创建时赋值或方法调用**  
+具体值:  **修改viewname和viewtag为指定值的实例的data属性或调用其方法，若该vue实例还未创建就等到匹配实例创建时赋值或方法调用**  
 
 
 如果页面中有重复使用的vue实例或者页面反复构建的页面  
@@ -205,14 +204,14 @@ viewtag变量传值或者方法调用
 ```
 此时，因为有多个改vue文件创建的vue实例，所以如果指定该vue文件生成的vue实例的属性进行修改的话，  
 
-需要指定viewtag,如果viewtag传-1则会改动所有该vue文件模板创建出来的实例。  
+需要指定viewtag,如果viewtag传 **if判断为false的值** 则会改动所有该vue文件模板创建出来的实例,。  
 
 ```
 this.$vuedataDo('myview', 'myview1', 'titles', [{text: "123", route: '/sdasg'}])
-this.$vuedataDo('myview', '-1', 'titles', [{text: "123", route: '/sdasg'}])
+this.$vuedataDo('myview', '', 'titles', [{text: "123", route: '/sdasg'}])
 
 this.$vuedataDo('detailview', 'tag1', products, [{title: "商品1", content: '内容1'}])
-this.$vuedataDo('detailview', '-1', products, [{title: "商品2", content: '内容2'}])
+this.$vuedataDo('detailview', '', products, [{title: "商品2", content: '内容2'}])
 ```
 ### 非vue文件中使用$vuedataDo
 在非vue文件中同样可以使用$vuedataDo,因为VueData对象放到了window上，  
@@ -230,6 +229,4 @@ VueData.$vuedataDo('myview', '', 'testMethod', 'param1', 'param2', 'param3') // 
 ### 关于封装性
 因为可以在已经引入vue-data文件之后任何位置改变或者调用（某个或同一个viewname的多个实例的）方法，  
 
-这似乎过于自由了，建议尽量把对自身vue文件data属性修改的方法放在该vue文件methods里面，再由外部调用，  
-
-尽量不要破坏vue文件的封装性。
+这似乎过于自由了，建议尽量把对自身vue文件data属性修改的方法放在该vue文件methods里面，再由外部调用。

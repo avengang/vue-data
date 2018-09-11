@@ -107,6 +107,18 @@ var $getArgMethodParam = function(arg) {
   }
   return result
 }
+var $getViewtag = function(vm) {
+  var oldVm = vm
+  if(vm._props.viewtag) return vm._props.viewtag
+  vm = vm.$parent
+  while(vm) {
+    if(vm.$$viewtag) {
+      return vm.$$viewtag + '_' + oldVm.configviewname
+    }
+    vm = vm.$parent
+  }
+  return oldVm.configviewname
+}
 export default {
   $deepCopy,
   $getElLink,
@@ -115,5 +127,6 @@ export default {
   $setSingle,
   $isUndefinedOrNull,
   $getCache,
-  $getArgMethodParam
+  $getArgMethodParam,
+  $getViewtag
 }

@@ -23,14 +23,18 @@ function vuedataDo() {
     } else {
       return _viewDatas.common[arguments0]
     }
-  } else if(arguments.length === 2) { // 更新全局属性
+  } else if(arguments.length === 2) { // 更新全局属性或者通过viewname和viewtag拿到实例
     var arg1 = arguments[0]
     var arg2 = arguments[1]
     for(var n=0,nn=_vms.length;n<nn;n++) {
       var vm = _vms[n]
-      var _viewtag = vm._props.viewtag || 'default'
-      if(vm.configviewname === arg1 && _viewtag === arg2) {
-        return vm
+      var _viewtag = vm.$$viewtag
+      if(vm.configviewname === arg1) {
+        if(arg2) {
+          if(_viewtag === arg2) return vm
+        } else {
+          return vm // 返回第一个找到的实例
+        }
       }
     }
     updateCommonData(arg1, arg2)
@@ -38,16 +42,17 @@ function vuedataDo() {
   } else {
     var viewname = arguments[0]
     var viewtag = arguments[1]
-    viewtag = viewtag || 'default'
+    var vmMatchNum = 0 // 匹配的vm
     for(var n=0,nn=_vms.length;n<nn;n++) {
       var vm = _vms[n]
-      var _viewtag = vm._props.viewtag || 'default'
+      var _viewtag = vm.$$viewtag
       if(vm.configviewname === viewname) {
+        vmMatchNum++
         var arguments2 = arguments[2]
         var arg2 = vm[arguments2]
         var isMethod = Object.prototype.toString.call(arg2) === '[object Function]'
         var params = util.$getArgMethodParam(arguments)
-        if(+viewtag !== -1) {
+        if(viewtag) {
           if(_viewtag !== viewtag) {
             continue
           }
@@ -67,19 +72,19 @@ function vuedataDo() {
       }
     }
   }
-  if(viewtag !== -1) {
+  if(!vmMatchNum) {
+    var tag = viewtag || '$default'
     if(!wait2Update[viewname])
-      wait2Update[viewname] = {}
-    if(!wait2Update[viewname][viewtag])
-      wait2Update[viewname][viewtag] = {}
+    	wait2Update[viewname] = {}
+    if(!wait2Update[viewname][tag])
+    	wait2Update[viewname][tag] = {}
     if(arguments.length === 4) {
-      wait2Update[viewname][viewtag][arguments[2]] = util.$deepCopy(arguments[3])
+    	wait2Update[viewname][tag][arguments[2]] = util.$deepCopy(arguments[3])
     } else if(arguments.length > 4) {
-      var params = util.$getArgMethodParam(arguments)
-      wait2Update[viewname][viewtag][arguments[2]] = params
+    	var params = util.$getArgMethodParam(arguments)
+    	wait2Update[viewname][tag][arguments[2]] = params
     }
   }
-  return null
 }
 function updateCommonDataHelper(vm, key, value) {
   if(!vm.common) {
@@ -169,46 +174,52 @@ var VueData = function(config) {
   var oldBeforeCreate = config.beforeCreate
   config.beforeCreate = function() {
     _vms.push(this)
+    this.configviewname = viewname
     oldBeforeCreate && oldBeforeCreate.bind(this)()
   }
   var oldCreated = config.created
   config.created = function() {
     this.$$cache = cache || util.$getCache(this)
-    var viewtag = this._props.viewtag || 'default'
-    if(this.$$cache || (this.$$cache && !name_tags[viewname][viewtag])) {
+    this.$$viewtag = util.$getViewtag(this)
+    if(this.$$cache || (this.$$cache && !name_tags[viewname][this.$$viewtag])) {
       oldBeforeCreate && oldBeforeCreate.bind(this)()
       oldCreated && oldCreated.bind(this)()
     }
   }
   var oldBeforeMount = config.beforeMount
   config.beforeMount = function() {
-    this.configviewname = viewname
-    var viewtag = this._props.viewtag || 'default'
-    if(!this.$$cache && name_tags[viewname][viewtag]) {
+    if(!this.$$cache && name_tags[viewname][this.$$viewtag]) {
       console.warn('同一个viewname（' + viewname + '）下定义了同一个viewtag:' + viewtag + '（如果是热更新引起的话请忽略。）')
     }
-    name_tags[viewname][viewtag] = true
+    name_tags[viewname][this.$$viewtag] = true
     if(this.$$cache) { // 如果需要缓存的话就要把该对象data加入字段
-      for(var k in _viewDatas[uuid][viewtag]) {
+      for(var k in _viewDatas[uuid][this.$$viewtag]) {
         if(this[k] === undefined) this.$set(this.$data, k, null)
       }
     }
-    if(!this.$$cache || (this.$$cache && !_viewDatas[uuid][viewtag])) oldBeforeMount && oldBeforeMount.bind(this)()
+    if(!this.$$cache || (this.$$cache && !_viewDatas[uuid][this.$$viewtag])) oldBeforeMount && oldBeforeMount.bind(this)()
   }
   var oldMounted = config.mounted
   config.mounted = function() {
     config.beforeCache && config.beforeCache.bind(this)()
-    var viewtag = this._props.viewtag || 'default'
-    if(!this.$$cache || (this.$$cache && !_viewDatas[uuid][viewtag])) oldMounted && oldMounted.bind(this)()
+    if(!this.$$cache || (this.$$cache && !_viewDatas[uuid][this.$$viewtag])) oldMounted && oldMounted.bind(this)()
     if(this.$$cache) { // 有指定该对象需要缓存的话就要在渲染完之后加入缓存内容
-      var viewDatas = _viewDatas[uuid][viewtag]
+      var viewDatas = _viewDatas[uuid][this.$$viewtag]
       util.$set(viewDatas, this)
-      _viewDatas[uuid][viewtag] = null
+      _viewDatas[uuid][this.$$viewtag] = null
     }
-    if(wait2Update[viewname] && wait2Update[viewname][viewtag]) {
-      var waitData = wait2Update[viewname][viewtag]
+    for(var k in wait2Update[viewname]) {
+      if(k === '$default' && wait2Update[viewname].$default) {
+        var waitData = wait2Update[viewname].$default
+        util.$set(waitData, this)
+        wait2Update[viewname].$default = null
+        break
+      }
+    }
+    if(wait2Update[viewname] && wait2Update[viewname][this.$$viewtag]) {
+      var waitData = wait2Update[viewname][this.$$viewtag]
       util.$set(waitData, this)
-      wait2Update[viewname][viewtag] = null
+      wait2Update[viewname][this.$$viewtag] = null
     }
     for(var commonk in _viewDatas.common) {
       updateCommonDataHelper(this, commonk, _viewDatas.common[commonk])
@@ -217,7 +228,6 @@ var VueData = function(config) {
   }
   var oldBeforeDestroy = config.beforeDestroy
   config.beforeDestroy = function() {
-    var viewtag = this._props.viewtag || 'default'
     oldBeforeDestroy && oldBeforeDestroy.bind(this)()
     for(var n=0,nn=_vms.length;n<nn;n++) {
       if(_vms[n] === this) {
@@ -226,10 +236,10 @@ var VueData = function(config) {
       }
     }
     if(this.$$cache) {
-      _viewDatas[uuid][viewtag] = util.$deepCopy(this._data)
+      _viewDatas[uuid][this.$$viewtag] = util.$deepCopy(this._data)
     } else {
-      name_tags[viewname][viewtag] = undefined
-      _viewDatas[uuid][viewtag] = null
+      name_tags[viewname][this.$$viewtag] = undefined
+      _viewDatas[uuid][this.$$viewtag] = null
     }
   }
   return config
