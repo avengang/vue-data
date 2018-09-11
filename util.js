@@ -117,6 +117,9 @@ var $getViewtag = function(vm) {
     }
     vm = vm.$parent
   }
+  if(oldVm._uid === 1) {
+    return 'app'
+  }
   return oldVm.configviewname
 }
 export default {
