@@ -39,6 +39,7 @@ vue-data会在window对象中定义一个全局对象：VueData。
                  //可以通过  beforeCache  和  cached  生命周期方法来执行激活逻辑
                  //如果未设置或者设置为false，但是父组件链中如果是设置了true的话值也为true，
                  //比如，页面设置了缓存，那页面中使用的自定义vue组件也是缓存的
+                 //清除缓存可以通过调用 实例的$$clearCache()来清除该实例和子组件的缓存内容
     viewname: 'myview', //vuedata实例名称，是为了指定修改数据和指定调用方法的时候定位到具体实例
                         
     data() {

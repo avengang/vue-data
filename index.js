@@ -174,6 +174,7 @@ var VueData = function(config) {
   var oldBeforeCreate = config.beforeCreate
   config.beforeCreate = function() {
     _vms.push(this)
+    this.$$uuid = uuid
     this.configviewname = viewname
     oldBeforeCreate && oldBeforeCreate.bind(this)()
   }
@@ -181,6 +182,17 @@ var VueData = function(config) {
   config.created = function() {
     this.$$cache = cache || util.$getCache(this)
     this.$$viewtag = util.$getViewtag(this)
+    function clearCache(vm) {
+      _viewDatas[vm.$$uuid][vm.$$viewtag] = null
+      for(var i = 0, ii = vm.$children.length; i < ii; i++) {
+        if(vm.$children[i].$$cache) {
+          clearCache(vm.$children[i])
+        }
+      }
+    }
+    this.$$clearCache = function() {
+    	clearCache(this)
+    }
     if(this.$$cache || (this.$$cache && !name_tags[viewname][this.$$viewtag])) {
       oldBeforeCreate && oldBeforeCreate.bind(this)()
       oldCreated && oldCreated.bind(this)()
