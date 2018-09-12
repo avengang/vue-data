@@ -3,7 +3,7 @@ vue-data是一个vue实例对象数据的管理工具。
 
 可以进行**数据共享**、**缓存**、**获取实例对象和属性**、**实例数据更新和方法调用**。  
 
-使用非常简单，只暴露一个api函数：$vuedataDo，增加了两个生命周期函数：beforeCache和cached  
+使用非常简单，只暴露一个api函数：$vd，增加了两个生命周期函数：beforeCache和cached  
 
 ## 安装
 ```
@@ -24,7 +24,7 @@ vue-data会在window对象中定义一个全局对象：VueData。
 <template>
   <div>
   <!-- 
-    每个vue实例中的common对象是相互独立的，可以通过调用$vuedataDo(key, value)的方式修改并同步到所有实例
+    每个vue实例中的common对象是相互独立的，可以通过调用$vd(key, value)的方式修改并同步到所有实例
      因为每个实例common对象相互独立，所以可以把common对象和对象中的属性当做普通data里面的属性使用，
      比如watch，computed等。不建议在实例中通过this.common的形式对该对象进行修改和删除
   -->
@@ -84,35 +84,35 @@ vue-data会在window对象中定义一个全局对象：VueData。
   })
 </script>
 ```
-### $vuedataDo()
+### $vd()
 vue-data的唯一暴露方法。  
 
-$vuedataDo(key):返回全局属性key的值  
+$vd(key):返回全局属性key的值  
 
-$vuedataDo(viewname|key, viewtag|value): 通过viewname，viewtag获取实例对象 或者 设置全局属性key值为value；  
+$vd(viewname|key, viewtag|value): 通过viewname，viewtag获取实例对象 或者 设置全局属性key值为value；  
 
-$vuedataDo(viewname, viewtag, method, param...):调用指定viewname，viewtag的实例的method方法,后面可跟不定个数个参数；  
+$vd(viewname, viewtag, method, param...):调用指定viewname，viewtag的实例的method方法,后面可跟不定个数个参数；  
 
-$vuedataDo(viewname, viewtag, key, value):修改指定viewname，viewtag的实例的key属性值为value；  
+$vd(viewname, viewtag, key, value):修改指定viewname，viewtag的实例的key属性值为value；  
 
 其中，**key**可以指定到具体的数组**下标**或者对象的**属性**：
-$vuedataDo('commonArr[0]', value0)
-$vuedataDo('commonObj[key1]', value1)
-$vuedataDo('myheader', '', 'dropMenuArr[0]', menuValue0)
-$vuedataDo('myheader', '', 'logo[url]', url)  
+$vd('commonArr[0]', value0)
+$vd('commonObj[key1]', value1)
+$vd('myheader', '', 'dropMenuArr[0]', menuValue0)
+$vd('myheader', '', 'logo[url]', url)  
 
 **返回值使用场景**  
-var commonObj = this.$vuedataDo('commonObj') // 获取全局对象的commonObj值，  
+var commonObj = this.$vd('commonObj') // 获取全局对象的commonObj值，  
 																						 
-var commonObj = this.$vuedataDo('commonObj[key]') // 获取全局对象的commonObj的key属性对应的值，  
+var commonObj = this.$vd('commonObj[key]') // 获取全局对象的commonObj的key属性对应的值，  
 
-var headerMenu = this.$vuedataDo('myheader', '', 'dropMenuArr') // 获取头部菜单对象  
+var headerMenu = this.$vd('myheader', '', 'dropMenuArr') // 获取头部菜单对象  
 
-var headerMenu0 = this.$vuedataDo('myheader', '', 'dropMenuArr[0]')// 获取头部菜单对象的第0个元素  
+var headerMenu0 = this.$vd('myheader', '', 'dropMenuArr[0]')// 获取头部菜单对象的第0个元素  
 
-var logo = this.$vuedataDo('myheader', '', 'logo')// 获取头部logo对象  
+var logo = this.$vd('myheader', '', 'logo')// 获取头部logo对象  
 
-var logoUrl = this.$vuedataDo('myheader', '', 'logo[url]')// 获取头部logo对象的url属性  
+var logoUrl = this.$vd('myheader', '', 'logo[url]')// 获取头部logo对象的url属性  
 
 ```
 <template>
@@ -129,13 +129,13 @@ var logoUrl = this.$vuedataDo('myheader', '', 'logo[url]')// 获取头部logo对
     methods: {
       // 修改属性testCommon的值为abc并同步到其他VueData对象
       //'abc'同样的可以替换成数组或者对象，因为内部实现用到了Vue.set
-      this.$vuedataDo('testCommon', 'abc')
+      this.$vd('testCommon', 'abc')
       
       // 设置viewname为myview,viewtag为的实例的titles属性为[{text: "关于我们", route: '/about'}]
-      this.$vuedataDo('myview', 'tag1', 'titles', [{text: "关于我们", route: '/about'}])
+      this.$vd('myview', 'tag1', 'titles', [{text: "关于我们", route: '/about'}])
       
       // 调用viewname为myview,viewtag为tag1的实例方法 myMethod
-      this.$vuedataDo('myview', 'tag1', 'myMethod']) // 
+      this.$vd('myview', 'tag1', 'myMethod']) // 
     }
   }
 </script>
@@ -207,24 +207,24 @@ if判定为false:  **修改当前存在未被销毁的viewname为指定值的所
 需要指定viewtag,如果viewtag传 **if判断为false的值** 则会改动所有该vue文件模板创建出来的实例,。  
 
 ```
-this.$vuedataDo('myview', 'myview1', 'titles', [{text: "123", route: '/sdasg'}])
-this.$vuedataDo('myview', '', 'titles', [{text: "123", route: '/sdasg'}])
+this.$vd('myview', 'myview1', 'titles', [{text: "123", route: '/sdasg'}])
+this.$vd('myview', '', 'titles', [{text: "123", route: '/sdasg'}])
 
-this.$vuedataDo('detailview', 'tag1', products, [{title: "商品1", content: '内容1'}])
-this.$vuedataDo('detailview', '', products, [{title: "商品2", content: '内容2'}])
+this.$vd('detailview', 'tag1', products, [{title: "商品1", content: '内容1'}])
+this.$vd('detailview', '', products, [{title: "商品2", content: '内容2'}])
 ```
-### 非vue文件中使用$vuedataDo
-在非vue文件中同样可以使用$vuedataDo,因为VueData对象放到了window上，  
+### 非vue文件中使用$vd
+在非vue文件中同样可以使用$vd,因为VueData对象放到了window上，  
 
-所以可以在任意js文件中通过VueData.$vuedataDo的形式调用该方法。  
+所以可以在任意js文件中通过VueData.$vd的形式调用该方法。  
 
 比如远端服务器数据请求的方法得到数据之后，或者其他第三方js文件中想改变vue对象，调用对象方法和common数据的时候。  
 
 ```
 //第三方js文件
-VueData.$vuedataDo('abc', '123') // 修改全局属性abc的值为123
-VueData.$vuedataDo('myview', '', 'title', 'hello') // 修改属性
-VueData.$vuedataDo('myview', '', 'testMethod', 'param1', 'param2', 'param3') // 调用方法
+VueData.$vd('abc', '123') // 修改全局属性abc的值为123
+VueData.$vd('myview', '', 'title', 'hello') // 修改属性
+VueData.$vd('myview', '', 'testMethod', 'param1', 'param2', 'param3') // 调用方法
 ```
 ### 关于封装性
 因为可以在已经引入vue-data文件之后任何位置改变或者调用（某个或同一个viewname的多个实例的）方法，  

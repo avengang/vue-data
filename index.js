@@ -6,10 +6,10 @@ var _viewDatas = {
 }
 var _vms = []
 var wait2Update = {}
-function vuedataDo() {
+function vd() {
   if(arguments.length === 0) {
     console.log('传入参数：', arguments)
-    throw new Error('$vuedataDo参数个数必须大于2')
+    throw new Error('$vd参数个数必须大于2')
   } else if(arguments.length === 1) { // 获取全局属性
     var arguments0 = arguments[0]
     var indexOrKey = ''
@@ -244,9 +244,9 @@ var VueData = function(config) {
   }
   return config
 }
-VueData.$vuedataDo = vuedataDo
+VueData.$vd = vd
 window.VueData = VueData
 function install(Vue, options) {
-  Vue.prototype.$vuedataDo = vuedataDo
+  Vue.prototype.$vd = vd
 }
 export default install
