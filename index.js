@@ -146,11 +146,13 @@ var VueData = function(config) {
   var oldDataFn = config.data
   config.data = function() {
     if(oldDataFn) {
+      console.log(viewname, oldDataFn)
       var tempObj = oldDataFn.bind(this)()
-      tempObj.common = {}
+      if(!tempObj) tempObj = {}
+      if(tempObj.common === undefined) tempObj.common = {}
       return util.$deepCopy(tempObj)
     } else {
-      util.$deepCopy({
+      return util.$deepCopy({
       	common: {}
       })
     }
