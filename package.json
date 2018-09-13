@@ -1,6 +1,6 @@
 {
   "name": "vue-data",
-  "version": "1.0.46",
+  "version": "1.0.47",
   "description": "vue data manager",
   "main": "index.js",
   "scripts": {
