@@ -35,7 +35,8 @@ vue-data会在window对象中定义一个全局对象：VueData。
   export default new window.VueData({
     cache: true, // 是否缓存,表示该VueData对象是需要缓存的，那改vue实例在销毁前将会把data对象缓存起来，
                  //等待下次create该对象的时候直接将缓存data值赋值给新的vue对象。
-                 //缓存的页面created 和beforeMount、mounted方法在使用缓存页面的时候是不会调用的，
+                 //缓存的页面created 和beforeMount、mounted方法在使用缓存且未被清空该页面缓存的情况下不会调用，
+                 //缓存页面beforeCreate会调用
                  //可以通过  beforeCache  和  cached  生命周期方法来执行激活逻辑
                  //如果未设置或者设置为false，但是父组件链中如果是设置了true的话值也为true，
                  //比如，页面设置了缓存，那页面中使用的自定义vue组件也是缓存的
@@ -64,28 +65,6 @@ vue-data会在window对象中定义一个全局对象：VueData。
 
 [vue-data-loader的使用方式](https://github.com/avengang/vue-data-loader/tree/master)  
 
-**注意**：在data方法的return对象属性的值不允许出现第三方插件给vue原型赋值的对象和方法,因为此时还未创建vue实例对象，  
-
-所以调用this对象的值时会报错，比如：vue-i18n,vue-router等：  
-
-```
-<script>
-  export default new window.VueData({
-    cache: true,
-    viewname: 'myview',
-    data() {
-      viewTitle: this.$route.params.type // 错误（vue-router）
-      name: this.$t('name'), // 错误（vue-i18n 国际化）
-    },
-    created() {
-      this.viewTitle = this.$route.params.type // 正确，给viewTitle赋值
-      this.name = this.$t('name') // 正确，给name赋值
-    },
-    methods: {
-    }
-  })
-</script>
-```
 ### $vd()
 vue-data的唯一暴露方法。  
 

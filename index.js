@@ -143,26 +143,16 @@ var VueData = function(config) {
   if(name_tags[viewname]) throw new Error('viewname不能重复, 已经存在viewname = ' + config.viewname + ' 的对象')
   name_tags[viewname] = {}
   _viewDatas[uuid] = {}
-  var dataReturn = null
-  if(config.data && Object.prototype.toString.call(config.data) === "[object Function]") {
-    try{
-      dataReturn = config.data()
-    }catch(e){
-      console.warn('VueData构造方法中data方法返回的对象中不允许使用this的属性，因为此时对象还未构造中，建议在created方法中给变量赋值。')
-      console.error(e)
-    }
-  }
-  if(!config.data || !dataReturn) {
-    config.data = function() {
-      return util.$deepCopy({
-        common: {}
+  var oldDataFn = config.data
+  config.data = function() {
+    if(oldDataFn) {
+      var tempObj = oldDataFn.bind(this)()
+      tempObj.common = {}
+      return util.$deepCopy(tempObj)
+    } else {
+      util.$deepCopy({
+      	common: {}
       })
-    }
-  } else {
-    var d = dataReturn
-    d.common = dataReturn.common || {}
-    config.data = function() {
-      return util.$deepCopy(d)
     }
   }
   if(!config.props) {
