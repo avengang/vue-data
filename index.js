@@ -195,7 +195,7 @@ var VueData = function(config) {
     this.$$cache = cache || util.$getCache(this)
     this.$$viewtag = util.$getViewtag(this)
     if(this.$$cache || (this.$$cache && !name_tags[viewname][this.$$viewtag])) {
-      oldBeforeCreate && oldBeforeCreate.bind(this)()
+      // oldBeforeCreate && oldBeforeCreate.bind(this)()
       oldCreated && oldCreated.bind(this)()
     }
   }
