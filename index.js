@@ -146,7 +146,6 @@ var VueData = function(config) {
   var oldDataFn = config.data
   config.data = function() {
     if(oldDataFn) {
-      console.log(viewname, oldDataFn)
       var tempObj = oldDataFn.bind(this)()
       if(!tempObj) tempObj = {}
       if(tempObj.common === undefined) tempObj.common = {}
