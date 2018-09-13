@@ -8,7 +8,20 @@ var _vms = []
 var wait2Update = {}
 function vd() {
   if(arguments.length === 0) {
-    throw new Error('全局对象调用时参数个数不能为0')
+    if(this.$$cache && this.$$uuid) {
+    	function clearCache(vm) {
+    		_viewDatas[vm.$$uuid][vm.$$viewtag] = null
+    		for(var i = 0, ii = vm.$children.length; i < ii; i++) {
+    			if(vm.$children[i].$$cache) {
+    				clearCache(vm.$children[i])
+    			}
+    		}
+    	}
+    	clearCache(this)
+      return
+    } else {
+      throw new Error('未设置缓存对象和全局对象调用时参数个数不能为0')
+    }
   } else if(arguments.length === 1) { // 获取全局属性
     var arguments0 = arguments[0]
     var indexOrKey = ''
@@ -46,7 +59,6 @@ function vd() {
       var vm = _vms[n]
       var _viewtag = vm.$$viewtag
       if(vm.configviewname === viewname) {
-        vmMatchNum++
         var arguments2 = arguments[2]
         var arg2 = vm[arguments2]
         var isMethod = Object.prototype.toString.call(arg2) === '[object Function]'
@@ -62,6 +74,7 @@ function vd() {
           }
           return
         } else {
+          vmMatchNum++
           if(isMethod) {
             arg2 && arg2.apply(vm, params)
           } else {
@@ -181,21 +194,6 @@ var VueData = function(config) {
   config.created = function() {
     this.$$cache = cache || util.$getCache(this)
     this.$$viewtag = util.$getViewtag(this)
-    function clearCache(vm) {
-      _viewDatas[vm.$$uuid][vm.$$viewtag] = null
-      for(var i = 0, ii = vm.$children.length; i < ii; i++) {
-        if(vm.$children[i].$$cache) {
-          clearCache(vm.$children[i])
-        }
-      }
-    }
-    this.$vd = function() {
-      if(arguments.length === 0) {
-        clearCache(this)
-      } else {
-        vd.apply(this, arguments)
-      }
-    }
     if(this.$$cache || (this.$$cache && !name_tags[viewname][this.$$viewtag])) {
       oldBeforeCreate && oldBeforeCreate.bind(this)()
       oldCreated && oldCreated.bind(this)()
@@ -204,7 +202,7 @@ var VueData = function(config) {
   var oldBeforeMount = config.beforeMount
   config.beforeMount = function() {
     if(!this.$$cache && name_tags[viewname][this.$$viewtag]) {
-      console.warn('同一个viewname（' + viewname + '）下定义了同一个viewtag:' + viewtag + '（如果是热更新引起的话请忽略。）')
+      console.warn('同一个viewname（' + viewname + '）下定义了同一个viewtag:' + this.$$viewtag + '（如果是热更新引起的话请忽略。）')
     }
     name_tags[viewname][this.$$viewtag] = true
     if(this.$$cache) { // 如果需要缓存的话就要把该对象data加入字段
@@ -262,6 +260,6 @@ var VueData = function(config) {
 VueData.$vd = vd
 window.VueData = VueData
 function install(Vue, options) {
-  // Vue.prototype.$vd = vd
+  Vue.prototype.$vd = vd
 }
 export default install
