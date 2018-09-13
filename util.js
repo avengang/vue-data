@@ -42,6 +42,10 @@ var $getUuid = function() {
 }
 var $setSingle = function(k, value, dist) {
   if(Object.prototype.toString.call(dist[k]) === '[object Function]') {
+    if(k === '$clearCache') {
+      dist[k]()
+      return
+    }
     if(Object.prototype.toString.call(value) === '[object Array]') {
       dist[k].apply(dist, value)
     } else {

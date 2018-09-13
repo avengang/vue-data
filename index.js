@@ -9,15 +9,7 @@ var wait2Update = {}
 function vd() {
   if(arguments.length === 0) {
     if(this.$$cache && this.$$uuid) {
-    	function clearCache(vm) {
-    		_viewDatas[vm.$$uuid][vm.$$viewtag] = null
-    		for(var i = 0, ii = vm.$children.length; i < ii; i++) {
-    			if(vm.$children[i].$$cache) {
-    				clearCache(vm.$children[i])
-    			}
-    		}
-    	}
-    	clearCache(this)
+    	this.$clearCache(this)
       return
     } else {
       throw new Error('未设置缓存对象和全局对象调用时参数个数不能为0')
@@ -90,6 +82,8 @@ function vd() {
     	wait2Update[viewname] = {}
     if(!wait2Update[viewname][tag])
     	wait2Update[viewname][tag] = {}
+    if(arguments.length === 3)
+      wait2Update[viewname][tag][arguments[2]] = ''
     if(arguments.length === 4) {
     	wait2Update[viewname][tag][arguments[2]] = util.$deepCopy(arguments[3])
     } else if(arguments.length > 4) {
@@ -194,7 +188,37 @@ var VueData = function(config) {
   config.created = function() {
     this.$$cache = cache || util.$getCache(this)
     this.$$viewtag = util.$getViewtag(this)
-    if(this.$$cache || (this.$$cache && !name_tags[viewname][this.$$viewtag])) {
+    function clearCache(vm) {
+    	_viewDatas[vm.$$uuid][vm.$$viewtag] = null
+    	for(var i = 0, ii = vm.$children.length; i < ii; i++) {
+    		if(vm.$children[i].$$cache) {
+    			clearCache(vm.$children[i])
+    		}
+    	}
+    }
+    this.$clearCache = clearCache
+    this.$$clearCacheFlag = ''
+    for(var k in wait2Update[viewname]) {
+    	if(k === '$default' && wait2Update[viewname].$default) {
+    		var waitData = wait2Update[viewname].$default
+    		for(var waitK in waitData) {
+    			if(waitK === '$clearCache') {
+    				this.$$clearCacheFlag = '$default'
+    				break
+    			}
+    		}
+    		break
+    	}
+    }
+    if(wait2Update[viewname] && wait2Update[viewname][this.$$viewtag]) {
+    	for(var waitK in wait2Update[viewname][this.$$viewtag]) {
+    		if(waitK === '$clearCache') {
+    			this.$$clearCacheFlag = this.$$viewtag
+    			break
+    		}
+    	}
+    }
+    if(!this.$$cache || (this.$$cache && !this.$$clearCacheFlag)) {
       // oldBeforeCreate && oldBeforeCreate.bind(this)()
       oldCreated && oldCreated.bind(this)()
     }
@@ -210,29 +234,34 @@ var VueData = function(config) {
         if(this[k] === undefined) this.$set(this.$data, k, null)
       }
     }
-    if(!this.$$cache || (this.$$cache && !_viewDatas[uuid][this.$$viewtag])) oldBeforeMount && oldBeforeMount.bind(this)()
+    if(!this.$$cache || (this.$$cache && !this.$$clearCacheFlag)) oldBeforeMount && oldBeforeMount.bind(this)()
   }
   var oldMounted = config.mounted
   config.mounted = function() {
     config.beforeCache && config.beforeCache.bind(this)()
-    if(!this.$$cache || (this.$$cache && !_viewDatas[uuid][this.$$viewtag])) oldMounted && oldMounted.bind(this)()
-    if(this.$$cache) { // 有指定该对象需要缓存的话就要在渲染完之后加入缓存内容
-      var viewDatas = _viewDatas[uuid][this.$$viewtag]
-      util.$set(viewDatas, this)
-      _viewDatas[uuid][this.$$viewtag] = null
-    }
-    for(var k in wait2Update[viewname]) {
-      if(k === '$default' && wait2Update[viewname].$default) {
-        var waitData = wait2Update[viewname].$default
-        util.$set(waitData, this)
-        wait2Update[viewname].$default = null
-        break
+    if(!this.$$cache || (this.$$cache && !this.$$clearCacheFlag)) oldMounted && oldMounted.bind(this)()
+    
+    if(!this.$$clearCacheFlag) {
+      if(this.$$cache) { // 有指定该对象需要缓存的话就要在渲染完之后加入缓存内容
+      	var viewDatas = _viewDatas[uuid][this.$$viewtag]
+      	util.$set(viewDatas, this)
+      	_viewDatas[uuid][this.$$viewtag] = null
       }
-    }
-    if(wait2Update[viewname] && wait2Update[viewname][this.$$viewtag]) {
-      var waitData = wait2Update[viewname][this.$$viewtag]
-      util.$set(waitData, this)
-      wait2Update[viewname][this.$$viewtag] = null
+      for(var k in wait2Update[viewname]) {
+      	if(k === '$default' && wait2Update[viewname].$default) {
+      		var waitData = wait2Update[viewname].$default
+      		util.$set(waitData, this)
+      		wait2Update[viewname].$default = null
+      		break
+      	}
+      }
+      if(wait2Update[viewname] && wait2Update[viewname][this.$$viewtag]) {
+      	var waitData = wait2Update[viewname][this.$$viewtag]
+      	util.$set(waitData, this)
+      	wait2Update[viewname][this.$$viewtag] = null
+      }
+    } else {
+      delete wait2Update[viewname][this.$$clearCacheFlag].$clearCache
     }
     for(var commonk in _viewDatas.common) {
       updateCommonDataHelper(this, commonk, _viewDatas.common[commonk])
