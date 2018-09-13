@@ -8,8 +8,7 @@ var _vms = []
 var wait2Update = {}
 function vd() {
   if(arguments.length === 0) {
-    console.log('传入参数：', arguments)
-    throw new Error('$vd参数个数必须大于2')
+    throw new Error('全局对象调用时参数个数不能为0')
   } else if(arguments.length === 1) { // 获取全局属性
     var arguments0 = arguments[0]
     var indexOrKey = ''
@@ -190,8 +189,12 @@ var VueData = function(config) {
         }
       }
     }
-    this.$$clearCache = function() {
-    	clearCache(this)
+    this.$vd = function() {
+      if(arguments.length === 0) {
+        clearCache(this)
+      } else {
+        vd.apply(this, arguments)
+      }
     }
     if(this.$$cache || (this.$$cache && !name_tags[viewname][this.$$viewtag])) {
       oldBeforeCreate && oldBeforeCreate.bind(this)()
@@ -259,6 +262,6 @@ var VueData = function(config) {
 VueData.$vd = vd
 window.VueData = VueData
 function install(Vue, options) {
-  Vue.prototype.$vd = vd
+  // Vue.prototype.$vd = vd
 }
 export default install
