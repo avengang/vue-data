@@ -2,7 +2,7 @@
 import util from './util.js'
 var name_tags = {}
 var _viewDatas = {
-  common: {}
+  g: {}
 }
 var _vms = []
 var wait2Update = {}
@@ -23,9 +23,9 @@ function vd() {
       indexOrKey = tempArr[1].split(']')[0]
     }
     if(indexOrKey) {
-      return _viewDatas.common[arguments0][indexOrKey]
+      return _viewDatas.g[arguments0][indexOrKey]
     } else {
-      return _viewDatas.common[arguments0]
+      return _viewDatas.g[arguments0]
     }
   } else if(arguments.length === 2) { // 更新全局属性或者通过viewname和viewtag拿到实例
     var arg1 = arguments[0]
@@ -41,7 +41,7 @@ function vd() {
         }
       }
     }
-    updateCommonData(arg1, arg2)
+    updategData(arg1, arg2)
     return null
   } else {
     var viewname = arguments[0]
@@ -92,8 +92,8 @@ function vd() {
     }
   }
 }
-function updateCommonDataHelper(vm, key, value) {
-  if(!vm.common) {
+function updategDataHelper(vm, key, value) {
+  if(!vm.g) {
     return //其他非VueData对象
   }
   var indexOrKey = ''
@@ -103,37 +103,37 @@ function updateCommonDataHelper(vm, key, value) {
     indexOrKey = tempArr[1].split(']')[0]
   }
   if(indexOrKey) {
-    if(Object.prototype.toString.call(vm.common[key]) === '[object Array]') {
-      if(vm.common[key][indexOrKey] === value) return
-      vm.$set(vm.common[key], indexOrKey, util.$deepCopy(value))
-    } else if(Object.prototype.toString.call(vm.common[key]) === '[object Object]') {
-      if(vm.common[key][indexOrKey] === value) return
-      vm.$set(vm.common[key], indexOrKey, util.$deepCopy(value))
+    if(Object.prototype.toString.call(vm.g[key]) === '[object Array]') {
+      if(vm.g[key][indexOrKey] === value) return
+      vm.$set(vm.g[key], indexOrKey, util.$deepCopy(value))
+    } else if(Object.prototype.toString.call(vm.g[key]) === '[object Object]') {
+      if(vm.g[key][indexOrKey] === value) return
+      vm.$set(vm.g[key], indexOrKey, util.$deepCopy(value))
     } else {
       throw new Error('非对象和非数组不允许按下标或字段设置值')
     }
   } else {
-    if(vm.common[key] === value) return // 没变化，不更新
-    if(Object.prototype.toString.call(vm.common[key]) === '[object Array]') {
-      vm.common[key] = []
+    if(vm.g[key] === value) return // 没变化，不更新
+    if(Object.prototype.toString.call(vm.g[key]) === '[object Array]') {
+      vm.g[key] = []
       for(var j=0;j<value.length;j++) {
-        vm.$set(vm.common[key], j, util.$deepCopy(value[j]))
+        vm.$set(vm.g[key], j, util.$deepCopy(value[j]))
       }
-    } else if(Object.prototype.toString.call(vm.common[key]) === '[object Object]') {
-      vm.common[key] = {}
+    } else if(Object.prototype.toString.call(vm.g[key]) === '[object Object]') {
+      vm.g[key] = {}
       for(var _key in value) {
-        vm.$set(vm.common[key], _key, util.$deepCopy(value[_key]))
+        vm.$set(vm.g[key], _key, util.$deepCopy(value[_key]))
       }
     } else {
-      vm.$set(vm.common, key, util.$deepCopy(value))
+      vm.$set(vm.g, key, util.$deepCopy(value))
     }
   }
 }
-function updateCommonData(key, value) {
-  _viewDatas.common[key] = value
+function updategData(key, value) {
+  _viewDatas.g[key] = value
   for(var i=0,ii=_vms.length;i<ii;i++) {
     var vm = _vms[i]
-    updateCommonDataHelper(vm, key, value)
+    updategDataHelper(vm, key, value)
   }
 }
 var VueData = function(config) {
@@ -148,11 +148,11 @@ var VueData = function(config) {
     if(oldDataFn) {
       var tempObj = oldDataFn.bind(this)()
       if(!tempObj) tempObj = {}
-      if(tempObj.common === undefined) tempObj.common = {}
+      if(tempObj.g === undefined) tempObj.g = {}
       return util.$deepCopy(tempObj)
     } else {
       return util.$deepCopy({
-      	common: {}
+      	g: {}
       })
     }
   }
@@ -204,7 +204,7 @@ var VueData = function(config) {
     if(wait2Update[viewname] && wait2Update[viewname][this.$$viewtag]) {
     	for(var waitK in wait2Update[viewname][this.$$viewtag]) {
     		if(waitK === '$clearCache') {
-    			this.$$clearCacheFlag = this.$$viewtag
+    			this.$$clearCacheFlag += ',' + this.$$viewtag
     			break
     		}
     	}
@@ -252,10 +252,16 @@ var VueData = function(config) {
       	wait2Update[viewname][this.$$viewtag] = null
       }
     } else {
-      delete wait2Update[viewname][this.$$clearCacheFlag].$clearCache
+      var flag = this.$$clearCacheFlag.split(',')
+      if(flag.length === 1) {
+        delete wait2Update[viewname][this.$$clearCacheFlag].$clearCache
+      } else if(flag.length === 2) {
+        delete wait2Update[viewname][flag[0]].$clearCache
+        delete wait2Update[viewname][flag[1]].$clearCache
+      }
     }
-    for(var commonk in _viewDatas.common) {
-      updateCommonDataHelper(this, commonk, _viewDatas.common[commonk])
+    for(var gk in _viewDatas.g) {
+      updategDataHelper(this, gk, _viewDatas.g[gk])
     }
     config.cached && config.cached.bind(this)()
   }

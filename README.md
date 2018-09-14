@@ -24,11 +24,11 @@ vue-data会在window对象中定义一个全局对象：VueData。
 <template>
   <div>
   <!-- 
-    每个vue实例中的common对象是相互独立的，可以通过调用$vd(key, value)的方式修改并同步到所有实例
-     因为每个实例common对象相互独立，所以可以把common对象和对象中的属性当做普通data里面的属性使用，
-     比如watch，computed等。不建议在实例中通过this.common的形式对该对象进行修改和删除
+    每个vue实例中的 g 对象是相互独立的，可以通过调用$vd(key, value)的方式修改并同步到所有实例
+     因为每个实例 g 对象相互独立，所以可以把 g 对象和对象中的属性当做普通data里面的属性使用，
+     比如watch，computed等。不建议在实例中通过 this.g 的形式对该对象进行修改和删除
   -->
-    页面{{common.abc}}
+    页面{{g.abc}}
   </div>
 </template>
 <script>
@@ -84,15 +84,15 @@ $vd(viewname, viewtag, key, value):修改指定viewname，viewtag的实例的key
 --------------------------------------------------------------------------------------  
 
 其中，**key**可以指定到具体的数组**下标**或者对象的**属性**：
-$vd('commonArr[0]', value0)
-$vd('commonObj[key1]', value1)
+$vd('gArr[0]', value0)
+$vd('gObj[key1]', value1)
 $vd('myheader', '', 'dropMenuArr[0]', menuValue0)
 $vd('myheader', '', 'logo[url]', url)  
 
 **返回值使用场景**  
-var commonObj = this.$vd('commonObj') // 获取全局对象的commonObj值，  
+var gObj = this.$vd('gObj') // 获取全局对象的gObj值，  
 																						 
-var commonObj = this.$vd('commonObj[key]') // 获取全局对象的commonObj的key属性对应的值，  
+var gObj = this.$vd('gObj[key]') // 获取全局对象的gObj的key属性对应的值，  
 
 var headerMenu = this.$vd('myheader', '', 'dropMenuArr') // 获取头部菜单对象  
 
@@ -115,9 +115,9 @@ var logoUrl = this.$vd('myheader', '', 'logo[url]')// 获取头部logo对象的u
     data() {
     },
     methods: {
-      // 修改属性testCommon的值为abc并同步到其他VueData对象
+      // 修改属性testG的值为abc并同步到其他VueData对象
       //'abc'同样的可以替换成数组或者对象，因为内部实现用到了Vue.set
-      this.$vd('testCommon', 'abc')
+      this.$vd('testG', 'abc')
       
       // 设置viewname为myview,viewtag为的实例的titles属性为[{text: "关于我们", route: '/about'}]
       this.$vd('myview', 'tag1', 'titles', [{text: "关于我们", route: '/about'}])
@@ -206,7 +206,7 @@ this.$vd('detailview', '', products, [{title: "商品2", content: '内容2'}])
 
 所以可以在任意js文件中通过VueData.$vd的形式调用该方法。  
 
-比如远端服务器数据请求的方法得到数据之后，或者其他第三方js文件中想改变vue对象，调用对象方法和common数据的时候。  
+比如远端服务器数据请求的方法得到数据之后，或者其他第三方js文件中想改变vue对象，调用对象方法和全局数据的时候。  
 
 ```
 //第三方js文件
