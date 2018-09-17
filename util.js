@@ -111,20 +111,34 @@ var $getArgMethodParam = function(arg) {
   }
   return result
 }
-var $getViewtag = function(vm) {
+var $getViewtag = function(vm, name_tags) {
+  if(vm._uid === 1) {
+  	return 'app'
+  }
   var oldVm = vm
-  if(vm._props.viewtag) return vm._props.viewtag
+  if(vm._props.viewtag) {
+    if(!name_tags[oldVm.configviewname][vm._props.viewtag]) {
+    	return vm._props.viewtag
+    } else{
+    	return vm._props.viewtag + '_' + $getUuid()
+    }
+  }
   vm = vm.$parent
   while(vm) {
     if(vm.$$viewtag) {
-      return vm.$$viewtag + '_' + oldVm.configviewname
+      if(!name_tags[oldVm.configviewname][vm.$$viewtag + '_' + oldVm.configviewname]) {
+        return vm.$$viewtag + '_' + oldVm.configviewname
+      } else{
+        return vm.$$viewtag + '_' + oldVm.configviewname + '_' + $getUuid()
+      }
     }
     vm = vm.$parent
   }
-  if(oldVm._uid === 1) {
-    return 'app'
+  if(!name_tags[oldVm.configviewname][oldVm.configviewname]) {
+  	return oldVm.configviewname
+  } else{
+    return oldVm.configviewname + '_' + $getUuid()
   }
-  return oldVm.configviewname
 }
 export default {
   $deepCopy,

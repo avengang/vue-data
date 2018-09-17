@@ -178,7 +178,7 @@ var VueData = function(config) {
   var oldCreated = config.created
   config.created = function() {
     this.$$cache = cache || util.$getCache(this)
-    this.$$viewtag = util.$getViewtag(this)
+    this.$$viewtag = util.$getViewtag(this, name_tags)
     function clearCache(vm) {
     	_viewDatas[vm.$$uuid][vm.$$viewtag] = null
     	for(var i = 0, ii = vm.$children.length; i < ii; i++) {
