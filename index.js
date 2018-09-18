@@ -179,6 +179,7 @@ var VueData = function(config) {
   config.created = function() {
     this.$$cache = cache || util.$getCache(this)
     this.$$viewtag = util.$getViewtag(this, name_tags)
+    config.beforeCache && config.beforeCache.bind(this)()
     function clearCache(vm) {
     	_viewDatas[vm.$$uuid][vm.$$viewtag] = null
     	for(var i = 0, ii = vm.$children.length; i < ii; i++) {
@@ -229,7 +230,6 @@ var VueData = function(config) {
   }
   var oldMounted = config.mounted
   config.mounted = function() {
-    config.beforeCache && config.beforeCache.bind(this)()
     if(!this.$$cache || (this.$$cache && !this.$$clearCacheFlag)) oldMounted && oldMounted.bind(this)()
     
     if(!this.$$clearCacheFlag) {
