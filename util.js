@@ -145,12 +145,14 @@ var $getViewtag = function(vm, name_tags) {
     return oldVm.configviewname + '_' + $getUuid();
   }
 };
-module.exports.$deepCopy = $deepCopy;
-module.exports.$getElLink = $getElLink;
-module.exports.$getUuid = $getUuid;
-module.exports.$set = $set;
-module.exports.$setSingle = $setSingle;
-module.exports.$isUndefinedOrNull = $isUndefinedOrNull;
-module.exports.$getCache = $getCache;
-module.exports.$getArgMethodParam = $getArgMethodParam;
-module.exports.$getViewtag = $getViewtag;
+module.exports = {
+  $deepCopy: $deepCopy,
+  $getElLink: $getElLink,
+  $getUuid: $getUuid,
+  $set: $set,
+  $setSingle: $setSingle,
+  $isUndefinedOrNull: $isUndefinedOrNull,
+  $getCache: $getCache,
+  $getArgMethodParam: $getArgMethodParam,
+  $getViewtag: $getViewtag
+};
