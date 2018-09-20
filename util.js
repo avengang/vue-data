@@ -1,33 +1,38 @@
 /* eslint-disable */
-var $deepCopy = function (obj, cache = []) {
+var $deepCopy = function (obj, c) {
+  var cache = c || [];
   function find (list, f) {
-    return list.filter(f)[0]
+    return list.filter(f)[0];
   }
-  if (obj === null || typeof obj !== 'object') {
-    return obj
+  if (obj == null || typeof obj != 'object') {
+    return obj;
   }
-  const hit = find(cache, c => c.original === obj)
+  function fn1(c) {
+    return c.original == obj;
+  }
+  var hit = find(cache, fn1);
   if (hit) {
-    return hit.copy
+    return hit.copy;
   }
-  const copy = Array.isArray(obj) ? [] : {}
+  var copy = Object.prototype.toString.call(obj) ==='[object Array]' ? [] : {};
   cache.push({
     original: obj,
-    copy
-  })
-  Object.keys(obj).forEach(key => {
-    copy[key] = $deepCopy(obj[key], cache)
-  })
-  return copy
-}
-var $getElLink = function(el) {
-  var result = ''
-  while(el) {
-    result += el.nodeName + el.id + el.className
-    el = el.parent
+    copy: copy
+  });
+  function fn2(key) {
+    copy[key] = $deepCopy(obj[key], cache);
   }
-  return result
-}
+  Object.keys(obj).forEach(fn2);
+  return copy;
+};
+var $getElLink = function(el) {
+  var result = '';
+  while(el) {
+    result += el.nodeName + el.id + el.className;
+    el = el.parent;
+  }
+  return result;
+};
 var $getUuid = function() {
   var s = [];
   var hexDigits = "0123456789abcdef";
@@ -39,115 +44,113 @@ var $getUuid = function() {
   s[8] = s[13] = s[18] = s[23] = "_";
   var uuid = s.join("");
   return uuid;
-}
+};
 var $setSingle = function(k, value, dist) {
-  if(Object.prototype.toString.call(dist[k]) === '[object Function]') {
-    if(k === '$clearCache') {
-      dist[k]()
-      return
+  if(Object.prototype.toString.call(dist[k]) == '[object Function]') {
+    if(k == '$clearCache') {
+      dist[k]();
+      return;
     }
-    if(Object.prototype.toString.call(value) === '[object Array]') {
-      dist[k].apply(dist, value)
+    if(Object.prototype.toString.call(value) == '[object Array]') {
+      dist[k].apply(dist, value);
     } else {
-      dist[k].call(dist, value)
+      dist[k].call(dist, value);
     }
-    return
+    return;
   }
-  var indexOrKey = ''
-  if(k.indexOf('[') !== -1) {
-    var tempArr = k.split('[')
-    k = tempArr[0]
-    indexOrKey = tempArr[1].split(']')[0]
+  var indexOrKey = '';
+  if(k.indexOf('[') != -1) {
+    var tempArr = k.split('[');
+    k = tempArr[0];
+    indexOrKey = tempArr[1].split(']')[0];
   }
   if(indexOrKey) {
-    if(Object.prototype.toString.call(dist[k]) === '[object Array]') {
-      if(dist[k][indexOrKey] === value) return // 没变化，不更新
-      dist.$set(dist[k], indexOrKey, $deepCopy(value))
-    } else if(Object.prototype.toString.call(dist[k]) === '[object Object]') {
-      if(dist[k][indexOrKey] === value) return // 没变化，不更新
-      dist.$set(dist[k], indexOrKey, $deepCopy(value))
+    if(Object.prototype.toString.call(dist[k]) == '[object Array]') {
+      if(dist[k][indexOrKey] == value) return; // 没变化，不更新
+      dist.$set(dist[k], indexOrKey, $deepCopy(value));
+    } else if(Object.prototype.toString.call(dist[k]) == '[object Object]') {
+      if(dist[k][indexOrKey] == value) return; // 没变化，不更新
+      dist.$set(dist[k], indexOrKey, $deepCopy(value));
     } else {
-      throw new Error('非对象和非数组不允许按下标或字段设置值')
+      throw new Error('非对象和非数组不允许按下标或字段设置值');
     }
   } else {
-    if(dist[k] === value) return // 没变化，不更新
-    if(Object.prototype.toString.call(dist[k]) === '[object Array]') {
-      dist[k] = []
+    if(dist[k] == value) return; // 没变化，不更新
+    if(Object.prototype.toString.call(dist[k]) == '[object Array]') {
+      dist[k] = [];
       for(var j=0;j<value.length;j++) {
-        dist.$set(dist[k], j, $deepCopy(value[j]))
+        dist.$set(dist[k], j, $deepCopy(value[j]));
       }
-    } else if(Object.prototype.toString.call(dist[k]) === '[object Object]') {
-      dist[k] = {}
+    } else if(Object.prototype.toString.call(dist[k]) == '[object Object]') {
+      dist[k] = {};
       for(var _key in value) {
-        dist.$set(dist[k], _key, $deepCopy(value[_key]))
+        dist.$set(dist[k], _key, $deepCopy(value[_key]));
       }
     } else {
-      dist[k] = $deepCopy(value)
+      dist[k] = $deepCopy(value);
     }
   }
-}
+};
 var $set = function(src, dist) {
   for(var k in src) {
-    $setSingle(k, src[k], dist)
+    $setSingle(k, src[k], dist);
   }
-}
+};
 var $isUndefinedOrNull = function(arg) {
-  if(arg === undefined || arg === null) return true
-  return false
-}
+  if(arg == undefined || arg == null) return true;
+  return false;
+};
 var $getCache = function(vm) {
   while(vm) {
-    if(!!vm.$$cache) return true
-    vm = vm.$parent
+    if(!!vm.$$cache) return true;
+    vm = vm.$parent;
   }
-  return false
-}
+  return false;
+};
 var $getArgMethodParam = function(arg) {
-  var result = []
+  var result = [];
   for(var i=0,ii=arg.length;i<ii;i++) {
     if(i >= 3) {
-      result.push(arg[i])
+      result.push(arg[i]);
     }
   }
-  return result
-}
+  return result;
+};
 var $getViewtag = function(vm, name_tags) {
-  if(vm._uid === 1) {
-  	return 'app'
+  if(vm._uid == 1) {
+  	return 'app';
   }
-  var oldVm = vm
+  var oldVm = vm;
   if(vm._props.viewtag) {
     if(!name_tags[oldVm.configviewname][vm._props.viewtag]) {
-    	return vm._props.viewtag
+    	return vm._props.viewtag;
     } else{
-    	return vm._props.viewtag + '_' + $getUuid()
+    	return vm._props.viewtag + '_' + $getUuid();
     }
   }
-  vm = vm.$parent
+  vm = vm.$parent;
   while(vm) {
     if(vm.$$viewtag) {
       if(!name_tags[oldVm.configviewname][vm.$$viewtag + '_' + oldVm.configviewname]) {
-        return vm.$$viewtag + '_' + oldVm.configviewname
+        return vm.$$viewtag + '_' + oldVm.configviewname;
       } else{
-        return vm.$$viewtag + '_' + oldVm.configviewname + '_' + $getUuid()
+        return vm.$$viewtag + '_' + oldVm.configviewname + '_' + $getUuid();
       }
     }
-    vm = vm.$parent
+    vm = vm.$parent;
   }
   if(!name_tags[oldVm.configviewname][oldVm.configviewname]) {
-  	return oldVm.configviewname
+  	return oldVm.configviewname;
   } else{
-    return oldVm.configviewname + '_' + $getUuid()
+    return oldVm.configviewname + '_' + $getUuid();
   }
-}
-export default {
-  $deepCopy,
-  $getElLink,
-  $getUuid,
-  $set,
-  $setSingle,
-  $isUndefinedOrNull,
-  $getCache,
-  $getArgMethodParam,
-  $getViewtag
-}
+};
+module.exports.$deepCopy = $deepCopy;
+module.exports.$getElLink = $getElLink;
+module.exports.$getUuid = $getUuid;
+module.exports.$set = $set;
+module.exports.$setSingle = $setSingle;
+module.exports.$isUndefinedOrNull = $isUndefinedOrNull;
+module.exports.$getCache = $getCache;
+module.exports.$getArgMethodParam = $getArgMethodParam;
+module.exports.$getViewtag = $getViewtag;
