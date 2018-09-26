@@ -101,11 +101,12 @@ var $isUndefinedOrNull = function(arg) {
   return false;
 };
 var $getCache = function(vm) {
-  while(vm) {
-    if(!!vm.$$cache) return true;
-    vm = vm.$parent;
-  }
-  return false;
+//   while(vm) {
+//     if(!!vm.$$cache) return true;
+//     vm = vm.$parent;
+//   }
+//   return false;
+  return vm.$$cache;
 };
 var $getArgMethodParam = function(arg) {
   var result = [];
@@ -120,32 +121,30 @@ var $getViewtag = function(vm, name_tags) {
   if(vm._uid == 1) {
   	return 'app';
   }
-  var oldVm = vm;
   if(vm._props.viewtag) {
-    if(!name_tags[oldVm.configviewname][vm._props.viewtag]) {
-    	return vm._props.viewtag;
+    return vm._props.viewtag;
+  }
+  if(vm.configviewname) {
+    if(!name_tags[vm.configviewname][vm.configviewname]) {
+    	return vm.configviewname + '_' + vm.configviewname;
     } else{
-    	return vm._props.viewtag + '_' + $getUuid();
+    	return vm.configviewname + '_' + vm.configviewname + '_' + name_tags[vm.configviewname]._max;
     }
   }
-  vm = vm.$parent;
-  while(vm) {
-    if(vm.$$viewtag) {
-      if(!name_tags[oldVm.configviewname][vm.$$viewtag + '_' + oldVm.configviewname]) {
-        return vm.$$viewtag + '_' + oldVm.configviewname;
-      } else{
-        return vm.$$viewtag + '_' + oldVm.configviewname + '_' + $getUuid();
-      }
-    }
-    vm = vm.$parent;
-  }
-  if(!name_tags[oldVm.configviewname][oldVm.configviewname]) {
-  	return oldVm.configviewname;
-  } else{
-    return oldVm.configviewname + '_' + $getUuid();
-  }
+  return $getUuid();
 };
-module.exports = {
+// module.exports = {
+//   $deepCopy: $deepCopy,
+//   $getElLink: $getElLink,
+//   $getUuid: $getUuid,
+//   $set: $set,
+//   $setSingle: $setSingle,
+//   $isUndefinedOrNull: $isUndefinedOrNull,
+//   $getCache: $getCache,
+//   $getArgMethodParam: $getArgMethodParam,
+//   $getViewtag: $getViewtag
+// };
+export default {
   $deepCopy: $deepCopy,
   $getElLink: $getElLink,
   $getUuid: $getUuid,
@@ -155,4 +154,4 @@ module.exports = {
   $getCache: $getCache,
   $getArgMethodParam: $getArgMethodParam,
   $getViewtag: $getViewtag
-};
+}
