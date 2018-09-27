@@ -282,7 +282,8 @@ var VueData = function(config) {
     if(this.$$cache) {
       _viewDatas[uuid][this.$$viewtag] = util.$deepCopy(this._data);
     } else {
-      name_tags[viewname][this.$$viewtag] = undefined;
+      // delete name_tags[viewname][this.$$viewtag]
+      // name_tags[viewname][this.$$viewtag] = undefined;
       _viewDatas[uuid][this.$$viewtag] = null;
     }
   }

@@ -125,7 +125,7 @@ var $getViewtag = function(vm, name_tags) {
     return vm._props.viewtag;
   }
   if(vm.configviewname) {
-    if(!name_tags[vm.configviewname][vm.configviewname]) {
+    if(!name_tags[vm.configviewname][vm.configviewname + '_' + vm.configviewname]) {
     	return vm.configviewname + '_' + vm.configviewname;
     } else{
     	return vm.configviewname + '_' + vm.configviewname + '_' + name_tags[vm.configviewname]._max;
