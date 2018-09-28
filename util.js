@@ -101,11 +101,11 @@ var $isUndefinedOrNull = function(arg) {
   return false;
 };
 var $getCache = function(vm) {
-//   while(vm) {
-//     if(!!vm.$$cache) return true;
-//     vm = vm.$parent;
-//   }
-//   return false;
+  while(vm) {
+    if(!!vm.$$cache) return true;
+    vm = vm.$parent;
+  }
+  return false;
   return vm.$$cache;
 };
 var $getArgMethodParam = function(arg) {
@@ -125,9 +125,9 @@ var $getViewtag = function(vm, name_tags) {
     return vm._props.viewtag;
   }
   if(vm.configviewname) {
-    if(!name_tags[vm.configviewname][vm.configviewname + '_' + vm.configviewname]) {
+    if(!name_tags[vm.configviewname][vm.configviewname + '_' + vm.configviewname] || vm.$$cache) {
     	return vm.configviewname + '_' + vm.configviewname;
-    } else{
+    } else {
     	return vm.configviewname + '_' + vm.configviewname + '_' + name_tags[vm.configviewname]._max;
     }
   }
