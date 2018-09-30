@@ -136,7 +136,7 @@ viewtag是为了处理同一个vue文件创建的多个vue实例导致的无法�
 
 VueData在定义的时候就给每一个vue对象新增了**props**属性**viewtag**  
 
-正因为如此，viewtag才必须在同一个viewname下具有唯一性，如果不指定，viewtag的值默认为最近一个VueData父实例的viewtag+"_"+viewname。  
+正因为如此，viewtag才必须在同一个viewname下具有唯一性，如果不指定，viewtag的值默会生成唯一的值。  
 
 
 viewtag变量传值或者方法调用  
@@ -218,3 +218,7 @@ VueData.$vd('myview', '', 'testMethod', 'param1', 'param2', 'param3') // 调用�
 因为可以在已经引入vue-data文件之后任何位置改变或者调用（某个或同一个viewname的多个实例的）方法，  
 
 这似乎过于自由了，建议尽量把对自身vue文件data属性修改的方法放在该vue文件methods里面，再由外部调用。
+### 生态
+基于vue-data的vue插件：
+  国际化插件
+    [vue-data-loader的使用方式](https://github.com/avengang/vue-data-loader/tree/master)  
