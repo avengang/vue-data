@@ -221,4 +221,4 @@ VueData.$vd('myview', '', 'testMethod', 'param1', 'param2', 'param3') // 调用�
 ### 生态
 基于vue-data的vue插件：
   国际化插件
-    [vue-data-loader的使用方式](https://github.com/avengang/vue-data-loader/tree/master)  
+    [vue-data-loader的使用方式](https://github.com/avengang/vue-data-i18n)  
