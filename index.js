@@ -216,7 +216,7 @@ var VueData = function(config) {
     		}
     	}
     }
-    if(!this.$$cache || (this.$$cache && !this.$$clearCacheFlag)) {
+    if(!this.$$cache || (this.$$cache && !_viewDatas[uuid][this.$$viewtag])) {
       // oldBeforeCreate && oldBeforeCreate.bind(this)()
       oldCreated && oldCreated.bind(this)();
     }
@@ -232,11 +232,11 @@ var VueData = function(config) {
         if(this[k] === undefined) this.$set(this.$data, k, null);
       }
     }
-    if(!this.$$cache || (this.$$cache && !this.$$clearCacheFlag)) oldBeforeMount && oldBeforeMount.bind(this)();
+    if(!this.$$cache || (this.$$cache && !_viewDatas[uuid][this.$$viewtag])) oldBeforeMount && oldBeforeMount.bind(this)();
   }
   var oldMounted = config.mounted;
   config.mounted = function() {
-    if(!this.$$cache || (this.$$cache && !this.$$clearCacheFlag)) oldMounted && oldMounted.bind(this)();
+    if(!this.$$cache || (this.$$cache && !_viewDatas[uuid][this.$$viewtag])) oldMounted && oldMounted.bind(this)();
     if(!this.$$clearCacheFlag) {
       if(this.$$cache) { // 有指定该对象需要缓存的话就要在渲染完之后加入缓存内容
       	var viewDatas = _viewDatas[uuid][this.$$viewtag];
