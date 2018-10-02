@@ -271,7 +271,7 @@ var VueData = function(config) {
     config.cached && config.cached.bind(this)();
   }
   var oldBeforeDestroy = config.beforeDestroy
-  config.beforeDestroy = function() {;
+  config.beforeDestroy = function() {
     oldBeforeDestroy && oldBeforeDestroy.bind(this)();
     for(var n=0,nn=_vms.length;n<nn;n++) {
       if(_vms[n] === this) {

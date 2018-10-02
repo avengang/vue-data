@@ -1,29 +1,46 @@
 /* eslint-disable */
-var $deepCopy = function (obj, c) {
-  var cache = c || [];
-  function find (list, f) {
-    return list.filter(f)[0];
+var $deepCopy = function (o) {
+  if(o instanceof Date) {
+    var d = new Date();
+    d.setFullYear(o.getFullYear())
   }
-  if (obj == null || typeof obj != 'object') {
-    return obj;
+  if (o instanceof Array) {
+    var n = [];
+    for (var i = 0; i < o.length; ++i) {
+      n[i] = $deepCopy(o[i]);
+    }
+    return n;
+  } else if (o instanceof Function) {
+    var n = new Function("return " + o.toString())();
+    return n
+  } else if (o instanceof Date) {
+    var d = new Date();
+    d.setFullYear(o.getFullYear());
+    d.setMonth(o.getMonth());
+    d.setDate(o.getDate());
+    d.setHours(o.getHours());
+    d.setMinutes(o.getMinutes());
+    d.setSeconds(o.getSeconds());
+    d.setMilliseconds(o.getMilliseconds());
+    return d;
+  } else if (o instanceof Number || o instanceof String || o instanceof Boolean) {
+    return o.valueOf();
+  } else if (o instanceof RegExp) {
+    var pattern = o.valueOf();
+    var flags = '';
+    flags += pattern.global ? 'g' : '';
+    flags += pattern.ignoreCase ? 'i' : '';
+    flags += pattern.multiline ? 'm' : '';
+    return new RegExp(pattern.source, flags);
+  } else if (o instanceof Object) {
+    var n = {}
+    for (var i in o) {
+      n[i] = $deepCopy(o[i]);
+    }
+    return n;
+  } else {
+    return o;
   }
-  function fn1(c) {
-    return c.original == obj;
-  }
-  var hit = find(cache, fn1);
-  if (hit) {
-    return hit.copy;
-  }
-  var copy = Object.prototype.toString.call(obj) ==='[object Array]' ? [] : {};
-  cache.push({
-    original: obj,
-    copy: copy
-  });
-  function fn2(key) {
-    copy[key] = $deepCopy(obj[key], cache);
-  }
-  Object.keys(obj).forEach(fn2);
-  return copy;
 };
 var $getElLink = function(el) {
   var result = '';
