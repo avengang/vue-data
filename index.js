@@ -188,6 +188,7 @@ var VueData = function(config) {
     config.beforeCache && config.beforeCache.bind(this)();
     function clearCache(vm) {
     	_viewDatas[vm.$$uuid][vm.$$viewtag] = null;
+      // delete _viewDatas[vm.$$uuid][vm.$$viewtag];
     	for(var i = 0, ii = vm.$children.length; i < ii; i++) {
     		if(vm.$children[i].$$cache) {
     			clearCache(vm.$children[i]);
