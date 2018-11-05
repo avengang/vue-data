@@ -141,12 +141,17 @@ var $getViewtag = function(vm, name_tags) {
   if(vm._props.viewtag) {
     return vm._props.viewtag;
   }
-  if(vm.configviewname) {
-    if(!name_tags[vm.configviewname][vm.configviewname + '_' + vm.configviewname] || vm.$$cache) {
-    	return vm.configviewname + '_' + vm.configviewname;
+  if(vm.$parent.configviewname) {
+    if(!name_tags[vm.configviewname][vm.$parent.configviewname + '_' + vm.configviewname] || vm.$$cache) {
+    	return vm.$parent.configviewname + '_' + vm.configviewname;
     } else {
-    	return vm.configviewname + '_' + vm.configviewname + '_' + name_tags[vm.configviewname]._max;
+    	return vm.$parent.configviewname + '_' + vm.configviewname + '_' + name_tags[vm.configviewname]._max;
     }
+  }
+  if(!name_tags[vm.configviewname][vm.configviewname + '_' + vm.configviewname] || vm.$$cache) {
+    return vm.configviewname + '_' + vm.configviewname;
+  } else {
+    return vm.configviewname + '_' + vm.configviewname + '_' + name_tags[vm.configviewname]._max;
   }
   return $getUuid();
 };
