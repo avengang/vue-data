@@ -141,14 +141,14 @@ var $getViewtag = function(vm, name_tags) {
   if(vm._props.viewtag) {
     return vm._props.viewtag;
   }
-  if(vm.$parent._props.viewtag) {
+  if(vm.$parent && vm.$parent._props && vm.$parent._props.viewtag) {
   	if(!name_tags[vm.configviewname][vm.$parent._props.viewtag + '_' + vm.configviewname] || vm.$$cache) {
   		return vm.$parent._props.viewtag + '_' + vm.configviewname;
   	} else {
   		return vm.$parent._props.viewtag + '_' + vm.configviewname + '_' + name_tags[vm.configviewname]._max;
   	}
   }
-  if(vm.$parent.configviewname) {
+  if(vm.$parent && vm.$parent.configviewname) {
     if(!name_tags[vm.configviewname][vm.$parent.configviewname + '_' + vm.configviewname] || vm.$$cache) {
     	return vm.$parent.configviewname + '_' + vm.configviewname;
     } else {
